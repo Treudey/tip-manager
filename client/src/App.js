@@ -7,6 +7,7 @@ import LoginPage from './pages/Login';
 import SignupPage from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import NoMatch from './pages/NoMatch';
+import AddTip from './pages/AddTip';
 import Navbar from './components/Navbar';
 
 class App extends Component {
@@ -119,6 +120,15 @@ class App extends Component {
             exact path="/" 
             render={props => (
               <Dashboard 
+                {...props}
+                userID={this.state.userID}
+              />
+            )} 
+          />
+          <Route 
+            exact path="/add" 
+            render={props => (
+              <AddTip 
                 {...props}
                 userID={this.state.userID}
               />

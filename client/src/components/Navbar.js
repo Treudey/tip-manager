@@ -7,10 +7,10 @@ const Navbar = props => {
   if (props.isLoggedIn === false) {
     navList = (
       <ul className="navbar-nav mr-auto">
-        <li className="navbar-item">
+        <li className="nav-item">
           <Link to="/" className="nav-link">Login</Link>
         </li>
-        <li className="navbar-item">
+        <li className="nav-item">
           <Link to="/signup" className="nav-link">Sign Up</Link>
         </li>
       </ul>
@@ -18,11 +18,14 @@ const Navbar = props => {
   } else if (props.isLoggedIn === true) {
     navList = (
       <ul className="navbar-nav mr-auto">
-        <li className="navbar-item">
+        <li className="nav-item">
           <Link to="/" className="nav-link">Dashboard</Link>
         </li>
-        <li className="navbar-item">
-          <button onClick={props.onLogout}>Logout</button>
+        <li className="nav-item">
+          <Link to="/add" className="nav-link">Add a Tip</Link>
+        </li>
+        <li className="nav-item">
+          <button className="btn btn-outline-danger my-2 my-sm-0" onClick={props.onLogout}>Logout</button>
         </li>
       </ul>
     );

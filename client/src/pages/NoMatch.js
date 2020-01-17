@@ -5,7 +5,7 @@ function NoMatch() {
     <div className="container-fluid">
       <div className="row">
         <div className="col-md-12">
-          <div class="jumbotron"> 
+          <div className="jumbotron"> 
             <h1>404 Page Not Found</h1>
             <h1>
               <span role="img" aria-label="Face With Rolling Eyes Emoji">
