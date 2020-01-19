@@ -6,7 +6,7 @@ const Navbar = props => {
   let navList ;
   if (props.isLoggedIn === false) {
     navList = (
-      <ul className="navbar-nav mr-auto">
+      <ul className="navbar-nav ml-auto">
         <li className="nav-item">
           <Link to="/" className="nav-link">Login</Link>
         </li>
@@ -17,9 +17,12 @@ const Navbar = props => {
     );
   } else if (props.isLoggedIn === true) {
     navList = (
-      <ul className="navbar-nav mr-auto">
+      <ul className="navbar-nav ml-auto">
         <li className="nav-item">
           <Link to="/" className="nav-link">Dashboard</Link>
+        </li>
+        <li className="nav-item">
+          <Link to="/alltips" className="nav-link">All Tips</Link>
         </li>
         <li className="nav-item">
           <Link to="/add" className="nav-link">Add a Tip</Link>

@@ -39,7 +39,7 @@ export default class AddTip extends Component {
     console.log(tip);
 
     axios.post('http://localhost:5000/tips/create', tip)
-      .then(res => console.log(res.data))
+      .then(res => console.log(res.data.message))
       .catch(err => console.log(err));
 
       const resetTip = {...this.state.tip};

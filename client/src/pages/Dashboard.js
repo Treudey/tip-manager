@@ -1,43 +1,40 @@
 import React, { Component } from 'react';
-import { Link } from "react-router-dom";
 import axios from 'axios';
+import moment from 'moment';
 
-const Tip = props => (
+const Row = props => (
   <tr>
-    <td>{props.tip.date.substring(0,10)}</td>
-    <td>${props.tip.amount}</td>
-    <td>{props.tip.shiftLength} hrs</td>
-    <td>
-      <Link to={"/edit/" + props.tip._id}>Edit</Link> | <a href="#" onClick={ () => props.deleteTip(props.tip._id) }>Delete</a>
-    </td>
+    <td>{props.name}</td>
+    <td>${props.rowData.total}</td>
+    <td>{props.rowData.hours}</td>
+    <td>${props.rowData.hourly}</td>
   </tr>
 );
-
 
 export default class Dashboard extends Component {
 
   constructor(props) {
     super(props);
 
-    this.deleteTip = this.deleteTip.bind(this);
-
     this.state = { 
+      userID: props.userID,
       name: '',
       email: '',
       password: '',
       tips: [],
+      tipsByMonth: {},
       tipInfo: {
         total: 0,
         totalYear: 0,
         totalMonth: 0,
         average: 0,
-        hourly: 0
+        totalHourly: 0
       }
-     };
+    };
   } 
 
   componentDidMount() {
-    axios.get('http://localhost:5000/auth/userdata?userID=' + this.props.userID)
+    axios.get('http://localhost:5000/auth/userdata?userID=' + this.state.userID)
       .then(response => {
         console.log(response.data.message);
         const user = response.data.user;
@@ -52,19 +49,26 @@ export default class Dashboard extends Component {
       .catch(err => console.log(err));
   }
 
-  generateTipInfo() {
+  getTotalsAndHourly(tips) {
     let total = 0;
-    let totalYear = 0;
-    let totalMonth = 0;
-    let hours = 0;
-
-    this.state.tips.forEach(e => total += e.amount);
-    let average = total / this.state.tips.length;
+    tips.forEach(e => total += e.amount);
+    let average = total / tips.length;
     average = average.toFixed(2);
 
-    this.state.tips.forEach(e => hours += e.shiftLength);
+    let hours = 0;
+    tips.forEach(e => hours += e.shiftLength);
     let hourly = total / hours;
     hourly = hourly.toFixed(2);
+
+    return { total, average, hours, hourly };
+  }
+
+  generateTipInfo() {
+    
+    let totalYear = 0;
+    let totalMonth = 0;
+    
+    const { total, average, hourly } = this.getTotalsAndHourly(this.state.tips);
 
     const currentYear = new Date().getFullYear();
     const currentYearTips = this.state.tips.filter(e => {
@@ -78,6 +82,22 @@ export default class Dashboard extends Component {
     });
     currentMonthTips.forEach(e => totalMonth += e.amount);
 
+    const tipsByMonth = {};
+    for (let i = 1; i <= 12; i++) {
+      const filteredArr = this.state.tips.filter(e => moment(e.date).format('M') === i.toString());
+      if (filteredArr.length) {
+        tipsByMonth[moment(filteredArr[0].date).format('MMMM')] = this.getTotalsAndHourly(filteredArr);
+      }
+    }
+
+    const tipsByWeek = {};
+    for (let i = 0; i < 7; i++) {
+      const filteredArr = this.state.tips.filter(e => new Date(e.date).getDay() === i);
+      if (filteredArr.length) {
+        tipsByWeek[moment(filteredArr[0].date).format('dddd')] = this.getTotalsAndHourly(filteredArr);
+      }
+    }
+
     this.setState({
       tipInfo: {
         total,
@@ -85,28 +105,21 @@ export default class Dashboard extends Component {
         totalMonth,
         average,
         hourly
-      }
-    })
-  }
-
-  deleteTip(id) {
-    axios.delete('http://localhost:5000/tips/' + id, {
-      data: {
-        userID: this.props.userID
-      }  
-    })
-      .then(res => console.log(res.data))
-      .catch(err => console.log(err));
-
-    this.setState({
-      tips: this.state.tips.filter(el => el._id !== id)
+      },
+      tipsByMonth,
+      tipsByWeek
     });
   }
 
-  tipList() {
-    return this.state.tips.map(tip => {
-      return <Tip tip={tip} deleteTip={this.deleteTip} key={tip._id} />;
-    })
+  tipList(tipsObject) {
+    const tipList = [];
+    for (const key in tipsObject) {
+      if (tipsObject.hasOwnProperty(key)) {
+        const monthData = tipsObject[key];
+        tipList.push(<Row name={key} rowData={monthData} key={key} />);
+      }
+    }
+    return tipList;
   }
 
   render() {
@@ -125,18 +138,31 @@ export default class Dashboard extends Component {
           </div>
         </div>
         <div className="row">
-          <h2>Your Tips</h2>
-          <table className="table">
+          <h3>Tip Data By</h3>
+          <table className="table" id="byMonth">
             <thead className="thead-light">
               <tr>
-                <th>Date</th>
-                <th>Amount</th>
-                <th>Shift Length</th>
-                <th>Actions</th>
+                <th>Month</th>
+                <th>Tips</th>
+                <th>Hours</th>
+                <th>$/Hour</th>
               </tr>
             </thead>
             <tbody>
-              {this.tipList()}
+              {this.tipList(this.state.tipsByMonth)}
+            </tbody>
+          </table>
+          <table className="table" id="byWeek">
+            <thead className="thead-light">
+              <tr>
+                <th>Weekday</th>
+                <th>Tips</th>
+                <th>Hours</th>
+                <th>$/Hour</th>
+              </tr>
+            </thead>
+            <tbody>
+              {this.tipList(this.state.tipsByWeek)}
             </tbody>
           </table>
         </div>

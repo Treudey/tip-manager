@@ -10,6 +10,7 @@ import Dashboard from './pages/Dashboard';
 import NoMatch from './pages/NoMatch';
 import AddTip from './pages/AddTip';
 import EditTip from './pages/EditTip';
+import TipList from './pages/TipList';
 
 class App extends Component {
 
@@ -48,7 +49,7 @@ class App extends Component {
           isLoggedIn: true,
           userID: res.data.userID
         });
-        console.log(res.data);
+        console.log(res.data.message);
         localStorage.setItem('userID', res.data.userID);
         const millisecs = 90 * 60 * 1000;
         const expiryDate = new Date(Date.now() + millisecs);
@@ -121,6 +122,15 @@ class App extends Component {
             exact path="/" 
             render={props => (
               <Dashboard 
+                {...props}
+                userID={this.state.userID}
+              />
+            )} 
+          />
+          <Route 
+            exact path="/alltips" 
+            render={props => (
+              <TipList 
                 {...props}
                 userID={this.state.userID}
               />

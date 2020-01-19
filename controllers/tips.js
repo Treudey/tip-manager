@@ -9,13 +9,13 @@ exports.getTips = (req, res, next) => {
     advErrorHandler('Please provide a userID as query', 400);
   }
   
-  User.findById(userID)
-    .populate('tips')
-    .then(user => {
+  Tip.find({ user: userID })
+    .sort({ 'date' : 'descending' })
+    .then(tips => {
       res.status(200)
         .json({ 
           message: 'Successfully fetched all tips', 
-          tips: user.tips
+          tips
         });
     })
     .catch(err => errorHandler(err, next));
