@@ -9,7 +9,7 @@ exports.getUserData = (req, res, next) => {
   }
 
   User.findById(userID)
-    .populate('tips')
+    .populate({path: 'tips', options: {sort:{'date': 'descending'}}})
     .then(user => {
       res.status(200).json({message: 'Successfully fetched all user data', user });
     })

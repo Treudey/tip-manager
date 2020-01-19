@@ -16,8 +16,7 @@ export default class EditTip extends Component {
         amount: 0,
         shiftLength: 0,
         date: new Date()
-      },
-      tipUpdated: false
+      }
     }
   }
 
@@ -26,13 +25,15 @@ export default class EditTip extends Component {
         'http://localhost:5000/tips/' + 
         this.props.match.params.id +
         '?userID=' +
-        this.state.userID
+        this.state.tip.userID
       )
       .then(response => {
+        console.log(response.data.message);
         const tip = {...this.state.tip};
-        tip.amount = response.data.amount;
-        tip.shiftLength = response.data.shiftLength;
-        tip.date = new Date(response.data.date);
+        const responseTip = response.data.tip;
+        tip.amount = responseTip.amount;
+        tip.shiftLength = responseTip.shiftLength;
+        tip.date = new Date(responseTip.date);
         this.setState({ tip }); 
       })
       .catch(err => console.log(err));
@@ -52,7 +53,10 @@ export default class EditTip extends Component {
     console.log(tip);
 
     axios.put('http://localhost:5000/tips/' + this.props.match.params.id, tip)
-      .then(res => console.log(res.data))
+      .then(res => {
+        console.log(res.data);
+        this.props.history.replace('/');
+      })
       .catch(err => console.log(err));
   }
 
@@ -60,7 +64,6 @@ export default class EditTip extends Component {
     return (
     <div>
       <h3>Edit Tip</h3>
-      {this.state.tipUpdated === true && <p className="text-success" >Tip successfully updated!</p>}
       <form onSubmit={this.onSubmit}>
         <div className="form-group">
           <label>Date: </label>

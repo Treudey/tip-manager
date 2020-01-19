@@ -3,12 +3,13 @@ import { Route, Switch, withRouter } from "react-router-dom";
 import axios from 'axios';
 
 import "bootstrap/dist/css/bootstrap.min.css";
+import Navbar from './components/Navbar';
 import LoginPage from './pages/Login';
 import SignupPage from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import NoMatch from './pages/NoMatch';
 import AddTip from './pages/AddTip';
-import Navbar from './components/Navbar';
+import EditTip from './pages/EditTip';
 
 class App extends Component {
 
@@ -129,6 +130,15 @@ class App extends Component {
             exact path="/add" 
             render={props => (
               <AddTip 
+                {...props}
+                userID={this.state.userID}
+              />
+            )} 
+          />
+          <Route 
+            exact path="/edit/:id" 
+            render={props => (
+              <EditTip
                 {...props}
                 userID={this.state.userID}
               />
