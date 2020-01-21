@@ -16,6 +16,24 @@ exports.getUserData = (req, res, next) => {
     .catch(err => errorHandler(err, next));
 };
 
+exports.getUserPositionsAndShiftTypes = (req, res, next) => {
+  const userID = req.query.userID;
+
+  if (!userID) {
+    advErrorHandler('Please provide a userID as query', 400);
+  }
+
+  User.findById(userID)
+    .then(user => {
+      res.status(200).json({
+        message: 'Successfully fetched user positions and shift types', 
+        positions: user.positions,
+        shiftTypes: user.shiftTypes
+      });
+    })
+    .catch(err => errorHandler(err, next));
+};
+
 exports.signup = (req, res, next) => {
   const { name, email, password, confirmPassword } = req.body;
 

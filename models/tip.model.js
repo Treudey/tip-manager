@@ -12,6 +12,14 @@ const tipSchema = new Schema({
     type: Number, 
     required: true 
   },
+  position: {
+    type: String,
+    required: true
+  },
+  shiftType: {
+    type: String,
+    required: true
+  },
   shiftLength: {
     type: Number, 
     required: true 

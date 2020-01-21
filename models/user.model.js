@@ -19,7 +19,9 @@ const userSchema = new Schema({
     type: Schema.Types.ObjectId, 
     ref: 'Tip', 
     required: true
-  }]
+  }],
+  positions: [{ type: String }],
+  shiftTypes: [{ type: String }]
 }, {
   timestamps: true
 });

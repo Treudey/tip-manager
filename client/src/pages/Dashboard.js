@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import axios from 'axios';
 import moment from 'moment';
 
@@ -21,8 +21,13 @@ export default class Dashboard extends Component {
       name: '',
       email: '',
       password: '',
+      shiftTypes: [],
+      positions: [],
       tips: [],
+      tipsByPosition: {},
+      tipsByShiftType: {},
       tipsByMonth: {},
+      tipsByDay: {},
       tipInfo: {
         total: 0,
         totalYear: 0,
@@ -42,6 +47,8 @@ export default class Dashboard extends Component {
           name: user.name,
           email: user.email,
           password: user.password,
+          positions: user.positions,
+          shiftTypes: user.shiftTypes,
           tips: user.tips
         });
         this.generateTipInfo();
@@ -82,6 +89,22 @@ export default class Dashboard extends Component {
     });
     currentMonthTips.forEach(e => totalMonth += e.amount);
 
+    const tipsByPosition = {};
+    for (const position of this.state.positions) {
+      const filteredArr = this.state.tips.filter(e => e.position === position);
+      if (filteredArr.length) {
+        tipsByPosition[position] = this.getTotalsAndHourly(filteredArr);
+      }
+    }
+
+    const tipsByShiftType = {};
+    for (const shiftType of this.state.shiftTypes) {
+      const filteredArr = this.state.tips.filter(e => e.shiftType === shiftType);
+      if (filteredArr.length) {
+        tipsByShiftType[shiftType] = this.getTotalsAndHourly(filteredArr);
+      }
+    }
+
     const tipsByMonth = {};
     for (let i = 1; i <= 12; i++) {
       const filteredArr = this.state.tips.filter(e => moment(e.date).format('M') === i.toString());
@@ -90,11 +113,11 @@ export default class Dashboard extends Component {
       }
     }
 
-    const tipsByWeek = {};
+    const tipsByDay = {};
     for (let i = 0; i < 7; i++) {
       const filteredArr = this.state.tips.filter(e => new Date(e.date).getDay() === i);
       if (filteredArr.length) {
-        tipsByWeek[moment(filteredArr[0].date).format('dddd')] = this.getTotalsAndHourly(filteredArr);
+        tipsByDay[moment(filteredArr[0].date).format('dddd')] = this.getTotalsAndHourly(filteredArr);
       }
     }
 
@@ -106,8 +129,10 @@ export default class Dashboard extends Component {
         average,
         hourly
       },
+      tipsByPosition,
+      tipsByShiftType,
       tipsByMonth,
-      tipsByWeek
+      tipsByDay
     });
   }
 
@@ -123,6 +148,68 @@ export default class Dashboard extends Component {
   }
 
   render() {
+    let tipListData;
+    if (!this.state.tips.length) {
+      tipListData = (<p>You have no tips currently!</p>);
+    } else {
+      tipListData = (
+        <Fragment>
+          <h3>Tip Data By</h3>
+          <table className="table" id="byPosition">
+            <thead className="thead-light">
+              <tr>
+                <th>Position</th>
+                <th>Tips</th>
+                <th>Hours</th>
+                <th>$/Hour</th>
+              </tr>
+            </thead>
+            <tbody>
+              {this.tipList(this.state.tipsByPosition)}
+            </tbody>
+          </table>
+          <table className="table" id="byShiftType">
+            <thead className="thead-light">
+              <tr>
+                <th>Type of Shift</th>
+                <th>Tips</th>
+                <th>Hours</th>
+                <th>$/Hour</th>
+              </tr>
+            </thead>
+            <tbody>
+              {this.tipList(this.state.tipsByShiftType)}
+            </tbody>
+          </table>
+          <table className="table" id="byMonth">
+            <thead className="thead-light">
+              <tr>
+                <th>Month</th>
+                <th>Tips</th>
+                <th>Hours</th>
+                <th>$/Hour</th>
+              </tr>
+            </thead>
+            <tbody>
+              {this.tipList(this.state.tipsByMonth)}
+            </tbody>
+          </table>
+          <table className="table" id="byDay">
+            <thead className="thead-light">
+              <tr>
+                <th>Weekday</th>
+                <th>Tips</th>
+                <th>Hours</th>
+                <th>$/Hour</th>
+              </tr>
+            </thead>
+            <tbody>
+              {this.tipList(this.state.tipsByDay)}
+            </tbody>
+          </table>
+        </Fragment>
+      );
+    }
     return (
       <div className="container-fluid">
         <div className="row jumbotron text-center">
@@ -138,33 +225,7 @@ export default class Dashboard extends Component {
           </div>
         </div>
         <div className="row">
-          <h3>Tip Data By</h3>
-          <table className="table" id="byMonth">
-            <thead className="thead-light">
-              <tr>
-                <th>Month</th>
-                <th>Tips</th>
-                <th>Hours</th>
-                <th>$/Hour</th>
-              </tr>
-            </thead>
-            <tbody>
-              {this.tipList(this.state.tipsByMonth)}
-            </tbody>
-          </table>
-          <table className="table" id="byWeek">
-            <thead className="thead-light">
-              <tr>
-                <th>Weekday</th>
-                <th>Tips</th>
-                <th>Hours</th>
-                <th>$/Hour</th>
-              </tr>
-            </thead>
-            <tbody>
-              {this.tipList(this.state.tipsByWeek)}
-            </tbody>
-          </table>
+          {tipListData}
         </div>
       </div>
     );

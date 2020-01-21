@@ -46,11 +46,13 @@ exports.getTip = (req, res, next) => {
 };
 
 exports.createTip = (req, res, next) => {
-  const { userID, amount, shiftLength, date } = req.body;
+  const { userID, amount, position, shiftType, shiftLength, date } = req.body;
 
   const newTip = new Tip({
     user: userID,
     amount: Number(amount),
+    position, 
+    shiftType,
     shiftLength: Number(shiftLength),
     date: Date.parse(date)
   });
@@ -61,6 +63,12 @@ exports.createTip = (req, res, next) => {
     })
     .then(user => {
       user.tips.push(newTip);
+      if (!user.positions.includes(newTip.position)) {
+        user.positions.push(newTip.position);
+      }
+      if (!user.shiftTypes.includes(newTip.shiftType)) {
+        user.shiftTypes.push(newTip.shiftType);
+      }
       return user.save();
     })
     .then(result => {
@@ -71,7 +79,7 @@ exports.createTip = (req, res, next) => {
 
 exports.updateTip = (req, res, next) => {
   const tipID = req.params.tipID;
-  const { userID, amount, shiftLength, date } = req.body;
+  const { userID, amount, position, shiftType, shiftLength, date } = req.body;
 
   Tip.findById(tipID)
     .then(tip => {
@@ -84,6 +92,8 @@ exports.updateTip = (req, res, next) => {
 
       tip.amount = Number(amount);
       tip.shiftLength = Number(shiftLength);
+      tip.position = position;
+      tip.shiftType = shiftType;
       tip.date = Date.parse(date);
       return tip.save();
     })
@@ -99,8 +109,6 @@ exports.deleteTip = (req, res, next) => {
 
   Tip.findById(tipID)
     .then(tip => {
-      console.log(userID);
-      console.log(tip.user);
       if (!tip) {
         advErrorHandler('Could not find tip', 404);
       }

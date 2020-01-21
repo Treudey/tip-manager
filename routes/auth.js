@@ -6,6 +6,9 @@ const authController = require('../controllers/auth');
 // GET /auth/userdata
 router.get('/userdata', authController.getUserData);
 
+// GET /auth/userlists
+router.get('/userlists', authController.getUserPositionsAndShiftTypes);
+
 // PUT /auth/signup
 router.post('/signup', authController.signup);
 

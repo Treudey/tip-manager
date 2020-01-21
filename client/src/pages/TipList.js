@@ -6,6 +6,8 @@ import moment from 'moment';
 const Tip = props => (
   <tr>
     <td>{moment(props.tip.date).format('DD/MM/YY ddd')}</td>
+    <td>{props.tip.position}</td>
+    <td>{props.tip.shiftType}</td>
     <td>${props.tip.amount}</td>
     <td>{props.tip.shiftLength} hrs</td>
     <td>
@@ -43,7 +45,7 @@ export default class TipList extends Component {
         userID: this.state.userID
       }  
     })
-      .then(res => console.log(res.data))
+      .then(res => console.log(res.data.message))
       .catch(err => console.log(err));
 
     this.setState({
@@ -58,23 +60,34 @@ export default class TipList extends Component {
   }
 
   render() {
+    let tipListData;
+    if (!this.state.tips.length) {
+      tipListData = (<h2>You have no tips currently!</h2>);
+    } else {
+      tipListData = (
+        <table className="table">
+          <thead className="thead-light">
+            <tr>
+              <th>Date</th>
+              <th>Position</th>
+              <th>Type of Shift</th>
+              <th>Amount</th>
+              <th>Shift Length</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {this.tipList()}
+          </tbody>
+        </table>
+      );
+    }
+
     return (
       <div className="container-fluid">
         <div className="row">
           <h1>Your Tips</h1>
-          <table className="table">
-            <thead className="thead-light">
-              <tr>
-                <th>Date</th>
-                <th>Amount</th>
-                <th>Shift Length</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {this.tipList()}
-            </tbody>
-          </table>
+          {tipListData}
         </div>
       </div>
     );

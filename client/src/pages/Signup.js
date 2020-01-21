@@ -48,7 +48,7 @@ export default class Signup extends Component {
           </div>
           <div className="form-group">
             <label>Password: </label>
-            <input type="text"
+            <input type="password"
               required
               id="password"
               className="form-control"
@@ -58,7 +58,7 @@ export default class Signup extends Component {
           </div>
           <div className="form-group">
             <label>Confirm Password: </label>
-            <input type="text"
+            <input type="password"
               required
               id="confirmPassword"
               className="form-control"
