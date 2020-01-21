@@ -2,9 +2,11 @@ import React, { Component, Fragment } from 'react';
 import axios from 'axios';
 import moment from 'moment';
 
+import Table from '../components/Table'
+
 const Row = props => (
   <tr>
-    <td>{props.name}</td>
+    <td>{props.rowData.name}</td>
     <td>${props.rowData.total}</td>
     <td>{props.rowData.hours}</td>
     <td>${props.rowData.hourly}</td>
@@ -24,10 +26,10 @@ export default class Dashboard extends Component {
       shiftTypes: [],
       positions: [],
       tips: [],
-      tipsByPosition: {},
-      tipsByShiftType: {},
-      tipsByMonth: {},
-      tipsByDay: {},
+      tipsByPosition: [],
+      tipsByShiftType: [],
+      tipsByMonth: [],
+      tipsByDay: [],
       tipInfo: {
         total: 0,
         totalYear: 0,
@@ -65,9 +67,21 @@ export default class Dashboard extends Component {
     let hours = 0;
     tips.forEach(e => hours += e.shiftLength);
     let hourly = total / hours;
-    hourly = hourly.toFixed(2);
+    hourly = '$' + hourly.toFixed(2);
 
-    return { total, average, hours, hourly };
+    return { total: '$' + total, average, hours, hourly };
+  }
+
+  getTipDataBy(arr, property) {
+    const newTipDataArr = [];
+    for (const item of arr) {
+      const filteredArr = this.state.tips.filter(e => e[property] === item);
+      if (filteredArr.length) {
+        const {total, hours, hourly} = this.getTotalsAndHourly(filteredArr);
+        newTipDataArr.push({name: item, total, hours, hourly });
+      }
+    }
+    return newTipDataArr;
   }
 
   generateTipInfo() {
@@ -89,35 +103,25 @@ export default class Dashboard extends Component {
     });
     currentMonthTips.forEach(e => totalMonth += e.amount);
 
-    const tipsByPosition = {};
-    for (const position of this.state.positions) {
-      const filteredArr = this.state.tips.filter(e => e.position === position);
-      if (filteredArr.length) {
-        tipsByPosition[position] = this.getTotalsAndHourly(filteredArr);
-      }
-    }
+    const tipsByPosition = this.getTipDataBy(this.state.positions, 'position');
 
-    const tipsByShiftType = {};
-    for (const shiftType of this.state.shiftTypes) {
-      const filteredArr = this.state.tips.filter(e => e.shiftType === shiftType);
-      if (filteredArr.length) {
-        tipsByShiftType[shiftType] = this.getTotalsAndHourly(filteredArr);
-      }
-    }
+    const tipsByShiftType = this.getTipDataBy(this.state.shiftTypes, 'shiftType');
 
-    const tipsByMonth = {};
+    const tipsByMonth = [];
     for (let i = 1; i <= 12; i++) {
       const filteredArr = this.state.tips.filter(e => moment(e.date).format('M') === i.toString());
       if (filteredArr.length) {
-        tipsByMonth[moment(filteredArr[0].date).format('MMMM')] = this.getTotalsAndHourly(filteredArr);
+        const {total, hours, hourly} = this.getTotalsAndHourly(filteredArr);
+        tipsByMonth.push({name: moment(filteredArr[0].date).format('MMMM'), total, hours, hourly});
       }
     }
 
-    const tipsByDay = {};
+    const tipsByDay = [];
     for (let i = 0; i < 7; i++) {
       const filteredArr = this.state.tips.filter(e => new Date(e.date).getDay() === i);
       if (filteredArr.length) {
-        tipsByDay[moment(filteredArr[0].date).format('dddd')] = this.getTotalsAndHourly(filteredArr);
+        const {total, hours, hourly} = this.getTotalsAndHourly(filteredArr);
+        tipsByDay.push({name: moment(filteredArr[0].date).format('dddd'), total, hours, hourly});
       }
     }
 
@@ -136,77 +140,26 @@ export default class Dashboard extends Component {
     });
   }
 
-  tipList(tipsObject) {
-    const tipList = [];
-    for (const key in tipsObject) {
-      if (tipsObject.hasOwnProperty(key)) {
-        const monthData = tipsObject[key];
-        tipList.push(<Row name={key} rowData={monthData} key={key} />);
-      }
-    }
-    return tipList;
+  tipList(tipData) {
+    return tipData.map(tip => {
+      return <Row rowData={tip} key={tip.name} />;
+    });
   }
 
   render() {
+    console.log(this.state);
     let tipListData;
     if (!this.state.tips.length) {
       tipListData = (<p>You have no tips currently!</p>);
     } else {
+      const headers = ['Tips', 'Hours', '$/Hour'];
       tipListData = (
         <Fragment>
           <h3>Tip Data By</h3>
-          <table className="table" id="byPosition">
-            <thead className="thead-light">
-              <tr>
-                <th>Position</th>
-                <th>Tips</th>
-                <th>Hours</th>
-                <th>$/Hour</th>
-              </tr>
-            </thead>
-            <tbody>
-              {this.tipList(this.state.tipsByPosition)}
-            </tbody>
-          </table>
-          <table className="table" id="byShiftType">
-            <thead className="thead-light">
-              <tr>
-                <th>Type of Shift</th>
-                <th>Tips</th>
-                <th>Hours</th>
-                <th>$/Hour</th>
-              </tr>
-            </thead>
-            <tbody>
-              {this.tipList(this.state.tipsByShiftType)}
-            </tbody>
-          </table>
-          <table className="table" id="byMonth">
-            <thead className="thead-light">
-              <tr>
-                <th>Month</th>
-                <th>Tips</th>
-                <th>Hours</th>
-                <th>$/Hour</th>
-              </tr>
-            </thead>
-            <tbody>
-              {this.tipList(this.state.tipsByMonth)}
-            </tbody>
-          </table>
-          <table className="table" id="byDay">
-            <thead className="thead-light">
-              <tr>
-                <th>Weekday</th>
-                <th>Tips</th>
-                <th>Hours</th>
-                <th>$/Hour</th>
-              </tr>
-            </thead>
-            <tbody>
-              {this.tipList(this.state.tipsByDay)}
-            </tbody>
-          </table>
+          <Table headers={['Position', ...headers]} rowList={this.state.tipsByPosition} />
+          <Table headers={['Type of Shift', ...headers]} rowList={this.state.tipsByShiftType} />
+          <Table headers={['Month', ...headers]} rowList={this.state.tipsByMonth} />
+          <Table headers={['Weekday', ...headers]} rowList={this.state.tipsByDay} />
         </Fragment>
       );
     }
