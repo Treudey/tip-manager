@@ -67,9 +67,9 @@ export default class Dashboard extends Component {
     let hours = 0;
     tips.forEach(e => hours += e.shiftLength);
     let hourly = total / hours;
-    hourly = '$' + hourly.toFixed(2);
+    hourly = hourly.toFixed(2);
 
-    return { total: '$' + total, average, hours, hourly };
+    return { total, average, hours, hourly };
   }
 
   getTipDataBy(arr, property) {
@@ -78,7 +78,12 @@ export default class Dashboard extends Component {
       const filteredArr = this.state.tips.filter(e => e[property] === item);
       if (filteredArr.length) {
         const {total, hours, hourly} = this.getTotalsAndHourly(filteredArr);
-        newTipDataArr.push({name: item, total, hours, hourly });
+        newTipDataArr.push({
+          name: item, 
+          total: '$' + total, 
+          hours, 
+          hourly: '$' + hourly 
+        });
       }
     }
     return newTipDataArr;
@@ -104,7 +109,6 @@ export default class Dashboard extends Component {
     currentMonthTips.forEach(e => totalMonth += e.amount);
 
     const tipsByPosition = this.getTipDataBy(this.state.positions, 'position');
-
     const tipsByShiftType = this.getTipDataBy(this.state.shiftTypes, 'shiftType');
 
     const tipsByMonth = [];
@@ -112,7 +116,12 @@ export default class Dashboard extends Component {
       const filteredArr = this.state.tips.filter(e => moment(e.date).format('M') === i.toString());
       if (filteredArr.length) {
         const {total, hours, hourly} = this.getTotalsAndHourly(filteredArr);
-        tipsByMonth.push({name: moment(filteredArr[0].date).format('MMMM'), total, hours, hourly});
+        tipsByMonth.push({
+          name: moment(filteredArr[0].date).format('MMMM'), 
+          total: '$' + total, 
+          hours, 
+          hourly: '$' + hourly
+        });
       }
     }
 
@@ -121,7 +130,12 @@ export default class Dashboard extends Component {
       const filteredArr = this.state.tips.filter(e => new Date(e.date).getDay() === i);
       if (filteredArr.length) {
         const {total, hours, hourly} = this.getTotalsAndHourly(filteredArr);
-        tipsByDay.push({name: moment(filteredArr[0].date).format('dddd'), total, hours, hourly});
+        tipsByDay.push({
+          name: moment(filteredArr[0].date).format('dddd'),
+           total: '$' + total, 
+           hours, 
+           hourly: '$' + hourly
+          });
       }
     }
 

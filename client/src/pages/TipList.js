@@ -59,7 +59,6 @@ export default class TipList extends Component {
     if (!this.state.tips.length) {
       tipListData = (<h2>You have no tips currently!</h2>);
     } else {
-      console.log(this.formatTipsForTable());
       tipListData = (
         <Fragment>
           <Table headers={['Date', 'Position', 'Type of Shift', 'Amount', 'Shift Length', 'Actions']} delete={this.deleteTip} rowList={this.formatTipsForTable()} />

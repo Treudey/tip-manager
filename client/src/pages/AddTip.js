@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { Modal, Button, Form } from 'react-bootstrap';
+import { Modal, Button } from 'react-bootstrap';
 import axios from 'axios';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
@@ -232,52 +232,52 @@ export default class AddTip extends Component {
         </div>
       </form>
       <Modal show={this.state.showPositionModal} onHide={() => this.setState({showPositionModal: false})} >
-          <Modal.Header closeButton>
-            <Modal.Title>Add a Position</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <label>Position:</label>
-            <input 
-              type="text" 
-              className="form-control" 
-              id="newPosition"
-              ref={(text) => { this.testInput = text; }} 
-              onChange={e => this.onChangeInput(e)}
-            />
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={() => this.setState({showPositionModal: false})}>
-              Close
-            </Button>
-            <Button variant="primary" onClick={() => this.onSubmitNewInput('position')}>
-              Save
-            </Button>
-          </Modal.Footer>
-        </Modal>
-        <Modal show={this.state.showShiftTypeModal} onHide={() => this.setState({showShiftTypeModal: false})}>
-          <Modal.Header closeButton>
-            <Modal.Title>Add a Shift Type</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <label>Type of Shift:</label>
-            <input 
-              type="text" 
-              className="form-control" 
-              id="newShiftType"
-              ref={(text) => { this.testInput = text; }} 
-              onChange={e => this.onChangeInput(e)}
-            ></input>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={() => this.setState({showShiftTypeModal: false})}>
-              Close
-            </Button>
-            <Button variant="primary" onClick={() => this.onSubmitNewInput('shiftType')}>
-              Save
-            </Button>
-          </Modal.Footer>
-        </Modal>
+        <Modal.Header closeButton>
+          <Modal.Title>Add a Position</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <label>Position:</label>
+          <input 
+            type="text" 
+            className="form-control" 
+            id="newPosition"
+            ref={(text) => { this.testInput = text; }} 
+            onChange={e => this.onChangeInput(e)}
+          />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => this.setState({showPositionModal: false})}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={() => this.onSubmitNewInput('position')}>
+            Save
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      <Modal show={this.state.showShiftTypeModal} onHide={() => this.setState({showShiftTypeModal: false})}>
+        <Modal.Header closeButton>
+          <Modal.Title>Add a Shift Type</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <label>Type of Shift:</label>
+          <input 
+            type="text" 
+            className="form-control" 
+            id="newShiftType"
+            ref={(text) => { this.testInput = text; }} 
+            onChange={e => this.onChangeInput(e)}
+          ></input>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => this.setState({showShiftTypeModal: false})}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={() => this.onSubmitNewInput('shiftType')}>
+            Save
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
-    )
+    );
   }
 }

@@ -95,7 +95,21 @@ exports.updateTip = (req, res, next) => {
       tip.position = position;
       tip.shiftType = shiftType;
       tip.date = Date.parse(date);
-      return tip.save();
+      tip.save()
+        .then(result => {
+          User.findById(userID)
+            .then(user => {
+              if (!user.positions.includes(tip.position)) {
+                user.positions.push(tip.position);
+              }
+              if (!user.shiftTypes.includes(tip.shiftType)) {
+                user.shiftTypes.push(tip.shiftType);
+              }
+              return user.save();
+            })
+            .catch(err => errorHandler(err, next));
+        })
+        .catch(err => errorHandler(err, next));
     })
     .then(result => {
       res.status(200).json({ message: 'Tip successfully updated', tip: result });
