@@ -25,6 +25,9 @@ const Navbar = props => {
           <Link to="/alltips" className="nav-link">All Tips</Link>
         </li>
         <li className="nav-item">
+          <Link to="/charts" className="nav-link">Charts</Link>
+        </li>
+        <li className="nav-item">
           <Link to="/add" className="nav-link">Add a Tip</Link>
         </li>
         <li className="nav-item">

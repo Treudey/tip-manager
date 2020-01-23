@@ -4,15 +4,6 @@ import moment from 'moment';
 
 import Table from '../components/Table'
 
-const Row = props => (
-  <tr>
-    <td>{props.rowData.name}</td>
-    <td>${props.rowData.total}</td>
-    <td>{props.rowData.hours}</td>
-    <td>${props.rowData.hourly}</td>
-  </tr>
-);
-
 export default class Dashboard extends Component {
 
   constructor(props) {
@@ -62,12 +53,12 @@ export default class Dashboard extends Component {
     let total = 0;
     tips.forEach(e => total += e.amount);
     let average = total / tips.length;
-    average = average.toFixed(2);
+    average = +average.toFixed(2);
 
     let hours = 0;
     tips.forEach(e => hours += e.shiftLength);
     let hourly = total / hours;
-    hourly = hourly.toFixed(2);
+    hourly = +hourly.toFixed(2);
 
     return { total, average, hours, hourly };
   }
@@ -154,12 +145,6 @@ export default class Dashboard extends Component {
     });
   }
 
-  tipList(tipData) {
-    return tipData.map(tip => {
-      return <Row rowData={tip} key={tip.name} />;
-    });
-  }
-
   render() {
     console.log(this.state);
     let tipListData;
@@ -177,6 +162,7 @@ export default class Dashboard extends Component {
         </Fragment>
       );
     }
+    
     return (
       <div className="container-fluid">
         <div className="row jumbotron text-center">

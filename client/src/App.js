@@ -11,6 +11,7 @@ import NoMatch from './pages/NoMatch';
 import AddTip from './pages/AddTip';
 import EditTip from './pages/EditTip';
 import TipList from './pages/TipList';
+import ChartsPage from './pages/ChartsPage';
 
 class App extends Component {
 
@@ -80,6 +81,7 @@ class App extends Component {
     this.setState({ isLoggedIn: false });
     localStorage.removeItem('expiryDate');
     localStorage.removeItem('userID');
+    this.props.history.replace('/');
   };
 
   setAutoLogout = millisecs => {
@@ -131,6 +133,15 @@ class App extends Component {
             exact path="/alltips" 
             render={props => (
               <TipList 
+                {...props}
+                userID={this.state.userID}
+              />
+            )} 
+          />
+          <Route 
+            exact path="/charts" 
+            render={props => (
+              <ChartsPage 
                 {...props}
                 userID={this.state.userID}
               />
