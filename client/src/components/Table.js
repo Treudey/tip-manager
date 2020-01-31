@@ -9,7 +9,7 @@ const Row = props => {
     } 
   } 
   if (props.delete !== null) {
-    tableData.push(<td key={props.rowData.id}><Link to={"/edit/" + props.rowData.id}>Edit</Link> | <a className="text-danger" href="#" onClick={ () => props.delete(props.rowData.id) }>Delete</a></td>);
+    tableData.push(<td key={props.rowData.id}><Link to={"/edit/" + props.rowData.id}>Edit</Link> | <a className="text-danger" href="# " onClick={ () => props.delete(props.rowData.id) }>Delete</a></td>);
   }
   
 
