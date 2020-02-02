@@ -65,11 +65,6 @@ export default class ChartsPage extends Component {
         this.generateTipTotals(tipDataByShiftType);
         this.generateTipTotals(tipsByMonth);
         this.generateTipTotals(tipsByDay);
-
-        console.log(tipDataByPosition);
-        console.log(tipDataByShiftType);
-        console.log(tipsByMonth);
-        console.log(tipsByDay);
         
         this.setState({
           positions: user.positions,
@@ -163,32 +158,32 @@ export default class ChartsPage extends Component {
 
     const filterdDataArr = dataArr.filter(e => e.length > 0);
     filterdDataArr.unshift([dataType, 'Tips']);
-    console.log(filterdDataArr);
     return filterdDataArr;
   };
 
-  render() {
-    console.log(this.state);
-    const dataArrByDayAndShiftTypeInseat = this.getFormattedArrBar(days, this.state.tipDataByPosition.Inseat, 'average', 'ShiftType');
-    const dataArrByDayAndShiftTypeBartender = this.getFormattedArrBar(days, this.state.tipDataByPosition.Bartender, 'average', 'ShiftType');
-
+  getFormattedArrLine(arr, rowType) {
     const dataArr = [];
   
-    if (this.state.tipData.tipsArr) {
-      
-      this.state.tipData.tipsArr.forEach(tip => {
-        dataArr.push([new Date(tip.date), tip.amount]);
+    if (arr) {
+      arr.forEach((tip, index) => {
+        if (rowType === 'date') {
+          dataArr.push([new Date(tip.date), tip.amount]);
+        } else {
+          dataArr.push([index + 1, tip.amount])
+        }
       });
-
+  
+      const column0 = (rowType === 'date') ? { type: 'date', label: 'Date' } : rowType;
       dataArr.unshift([
-        { type: 'date', label: 'Shift' },
+        column0,
         'Tips',
       ]);
     }
     
-    
+    return dataArr;
+  }
 
-
+  render() {
     return (
       <Container fluid>
         <Row>
@@ -279,61 +274,49 @@ export default class ChartsPage extends Component {
           </Col>
         </Row>
         <Row>
-          <Col>
-            <Chart
-              width={'100%'}
-              height={'500px'}
-              chartType="ColumnChart"
-              loader={<div>Loading Chart</div>}
-              data={dataArrByDayAndShiftTypeInseat}
-              options={{
-                title: 'Average Tips by Weekday for Inseat',
-                chartArea: { width: '50%' },
-                vAxis: {
-                  title: 'Dollars',
-                  minValue: 0,
-                },
-                hAxis: {
-                  title: 'Weekday',
-                },
-              }}
-            />
-          </Col>
-          <Col>
-            <Chart
-              width={'100%'}
-              height={'500px'}
-              chartType="ColumnChart"
-              loader={<div>Loading Chart</div>}
-              data={dataArrByDayAndShiftTypeBartender}
-              options={{
-                title: 'Average Tips by Weekday for Bartender',
-                chartArea: { width: '50%' },
-                vAxis: {
-                  title: 'Dollars',
-                  minValue: 0,
-                },
-                hAxis: {
-                  title: 'Weekday',
-                },
-              }}
-            />
-          </Col>
+          {this.state.positions.length > 1 && 
+            this.state.positions.map(position => {
+              return (
+                <Col key={position + 'AverageTips'}>
+                  <Chart
+                    width={'100%'}
+                    height={'500px'}
+                    chartType="ColumnChart"
+                    loader={<div>Loading Chart</div>}
+                    data={this.getFormattedArrBar(days, this.state.tipDataByPosition[position], 'average', 'ShiftType')}
+                    options={{
+                      title: 'Average Tips by Weekday for ' + position,
+                      chartArea: { width: '50%' },
+                      vAxis: {
+                        title: 'Dollars',
+                        minValue: 0,
+                      },
+                      hAxis: {
+                        title: 'Weekday',
+                      },
+                    }}
+                  />
+                </Col>
+              )
+            })
+          }
         </Row>
         <Row>
-          <Col>
-            <Chart
-              width={'100%'}
-              height={'500px'}
-              chartType="PieChart"
-              loader={<div>Loading Chart</div>}
-              data={this.getFormattedArrPie(this.state.positions, this.state.tipDataByPosition, 'Position')}
-              options={{
-                title: 'Percentage of Tips Earned by Position',
-                is3D: true
-              }}
-            />
-          </Col>
+          {this.state.positions.length > 1 && 
+            <Col>
+              <Chart
+                width={'100%'}
+                height={'500px'}
+                chartType="PieChart"
+                loader={<div>Loading Chart</div>}
+                data={this.getFormattedArrPie(this.state.positions, this.state.tipDataByPosition, 'Position')}
+                options={{
+                  title: 'Percentage of Tips Earned by Position',
+                  is3D: true
+                }}
+              />
+            </Col>  
+          }
           <Col>
             <Chart
               width={'100%'}
@@ -367,14 +350,14 @@ export default class ChartsPage extends Component {
           <Col>
             <Chart
               width={'100%'}
-              height={'700px'}
+              height={'500px'}
               chartType="LineChart"
               loader={<div>Loading Chart</div>}
-              data={dataArr}
+              data={this.getFormattedArrLine(this.state.tipData.tipsArr, 'date')}
               options={{
-                title: 'Percentage of Tips Earned by Day',
+                title: 'Tips Earned by Date',
                 hAxis: {
-                  title: 'Shift Date'
+                  title: 'Date'
                 },
                 vAxis: {
                   title: 'Tips'
@@ -384,6 +367,33 @@ export default class ChartsPage extends Component {
             />
           </Col>
         </Row>
+        {this.state.positions.length > 1 && 
+            this.state.positions.map(position => {
+              return (
+                <Row key={position + 'TipsOverTime'}>
+                <Col>
+                  <Chart
+                    width={'100%'}
+                    height={'500px'}
+                    chartType="LineChart"
+                    loader={<div>Loading Chart</div>}
+                    data={this.getFormattedArrLine(this.state.tipDataByPosition[position].tipsArr, 'date')}
+                    options={{
+                      title: `Tips Earned for ${position} by Date`,
+                      hAxis: {
+                        title: 'Date'
+                      },
+                      vAxis: {
+                        title: 'Tips'
+                      },
+                      pointsVisible: true	
+                    }}
+                  />
+                </Col>
+                </Row>
+              )
+            })
+          }
       </Container>
     );
   }

@@ -27,7 +27,9 @@ export default class AddTip extends Component {
       positionOptions: [],
       shiftTypeOptions: [],
       showPositionModal: false,
-      showShiftTypeModal: false
+      showShiftTypeModal: false,
+      messageTimer: null
+
     }
   }
 
@@ -47,6 +49,10 @@ export default class AddTip extends Component {
         }
       })
       .catch(err => console.log(err));
+  }
+
+  componentWillUnmount() {
+    clearTimeout(this.state.messageTimer);
   }
 
   onChangeInput(e) {
@@ -104,9 +110,10 @@ export default class AddTip extends Component {
         resetTip.date = new Date();
         this.setState({
           tip: resetTip,
-          tipAdded: true
+          tipAdded: true,
+          messageTimer: setTimeout(() => this.setState( {tipAdded: false} ), 3000)
         });
-        setTimeout(() => this.setState( {tipAdded: false} ), 3000);
+        
        })
       .catch(err => console.log(err));
   }

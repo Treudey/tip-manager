@@ -1,43 +1,26 @@
-# React Express Starter Pack
+# Tip Manager
 
-> Create full stack apps with React and Express. Run your client and server with a single command. 
+> A site for tracking and analyzing tips earned by hospitality workers.
 
-### Redux Version
-This version does not include Redux
-[Click Here For Redux Version](https://github.com/bradtraversy/react_redux_express_starter) 
+## Technologies and Frameworks
+* React
+* Node.js
+* Express
+* MongoDB
+* Mongoose ODM
+* React Google Charts
+* axios
+* Heroku
+* JawsDB
+* REST API Principals
+* JavaScript
+* Bootstrap
+* HTML
+* CSS
 
-## Quick Start
+## Authors
+* **Alex Treude**         [Treudey](https://github.com/Treudey)
 
-``` bash
-# Install dependencies for server
-npm install
+## License
+MIT
 
-# Install dependencies for client
-npm run client-install
-
-# Run the client & server with concurrently
-npm run dev
-
-# Run the Express server only
-npm run server
-
-# Run the React client only
-npm run client
-
-# Server runs on http://localhost:5000 and client on http://localhost:3000
-```
-
-## App Info
-
-### Author
-
-Brad Traversy
-[Traversy Media](http://www.traversymedia.com)
-
-### Version
-
-1.0.0
-
-### License
-
-This project is licensed under the MIT License
