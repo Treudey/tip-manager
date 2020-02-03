@@ -16,18 +16,12 @@ export default class Dashboard extends Component {
       password: '',
       shiftTypes: [],
       positions: [],
-      tips: [],
-      tipsByPosition: [],
-      tipsByShiftType: [],
-      tipsByMonth: [],
-      tipsByDay: [],
-      tipInfo: {
-        total: 0,
-        totalYear: 0,
-        totalMonth: 0,
-        average: 0,
-        totalHourly: 0
-      }
+      tipData: {},
+      tipDataByPosition: {},
+      tipDataByShiftType: {},
+      tipDataByMonth: {},
+      tipDataByDay: {},
+      tipDataCurrYear: {}
     };
   } 
 
@@ -36,129 +30,102 @@ export default class Dashboard extends Component {
       .then(response => {
         console.log(response.data.message);
         const user = response.data.user;
+        const tipDataByPosition = {};
+        const tipDataByShiftType = {};
+        const tipDataByMonth = {};
+        const tipDataByDay = {};
+        const tipDataCurrYear = { tipsArr: [] };
+
+        const createTipArrayAndPush = (obj, key, tip) => {
+          obj[key] = obj[key] || {};
+          obj[key].tipsArr = obj[key].tipsArr || [];
+          obj[key].tipsArr.push(tip);
+        };
+
+        for (const tip of user.tips) {
+          createTipArrayAndPush(tipDataByPosition, tip.position, tip);
+          createTipArrayAndPush(tipDataByShiftType, tip.shiftType, tip);
+
+          const weekday = moment(tip.date).format('dddd');
+          createTipArrayAndPush(tipDataByDay, weekday, tip);
+
+          const month = moment(tip.date).format('MMMM');
+          createTipArrayAndPush(tipDataByMonth, month, tip);
+
+          if (new Date().getFullYear() === new Date(tip.date).getFullYear()) {
+            tipDataCurrYear.tipsArr.push(tip);
+          }
+        }
+
+        this.generateTipTotals(tipDataByPosition);
+        this.generateTipTotals(tipDataByShiftType);
+        this.generateTipTotals(tipDataByMonth);
+        this.generateTipTotals(tipDataByDay);
+        this.generateTipTotals(tipDataCurrYear);
+        const tipTotals = this.getTotalsAndHourly(user.tips);
+
         this.setState({ 
           name: user.name,
           email: user.email,
           password: user.password,
           positions: user.positions,
           shiftTypes: user.shiftTypes,
-          tips: user.tips
+          tipData: {
+            tipsArr: user.tips,
+            totals: {
+              ...tipTotals,
+              average: (tipTotals.total / user.tips.length).toFixed(2)
+            }
+          },
+          tipDataByPosition,
+          tipDataByShiftType,
+          tipDataByMonth,
+          tipDataByDay,
+          tipDataCurrYear
         });
-        this.generateTipInfo();
       })
       .catch(err => console.log(err));
   }
 
+  generateTipTotals(object) {
+    for (const key in object) {
+      if (object.hasOwnProperty(key)) {
+        const element = object[key];
+        if (Array.isArray(element) && element.length) {
+          object.totals = this.getTotalsAndHourly(element);
+        } else if (typeof element === 'object') {
+          this.generateTipTotals(element);
+        } 
+      }
+    }
+  };
+
   getTotalsAndHourly(tips) {
     let total = 0;
     tips.forEach(e => total += e.amount);
-    let average = total / tips.length;
-    average = +average.toFixed(2);
 
     let hours = 0;
     tips.forEach(e => hours += e.shiftLength);
     let hourly = total / hours;
-    hourly = +hourly.toFixed(2);
+    hourly = '$' + hourly.toFixed(2);
 
-    return { total, average, hours, hourly };
-  }
-
-  getTipDataBy(arr, property) {
-    const newTipDataArr = [];
-    for (const item of arr) {
-      const filteredArr = this.state.tips.filter(e => e[property] === item);
-      if (filteredArr.length) {
-        const {total, hours, hourly} = this.getTotalsAndHourly(filteredArr);
-        newTipDataArr.push({
-          name: item, 
-          total: '$' + total, 
-          hours, 
-          hourly: '$' + hourly 
-        });
-      }
-    }
-    return newTipDataArr;
-  }
-
-  generateTipInfo() {
-    
-    let totalYear = 0;
-    let totalMonth = 0;
-    
-    const { total, average, hourly } = this.getTotalsAndHourly(this.state.tips);
-
-    const currentYear = new Date().getFullYear();
-    const currentYearTips = this.state.tips.filter(e => {
-      return new Date(e.date).getFullYear() === currentYear;
-    });
-    currentYearTips.forEach(e => totalYear += e.amount);
-
-    const currentMonth = new Date().getMonth();
-    const currentMonthTips = this.state.tips.filter(e => {
-      return new Date(e.date).getMonth() === currentMonth;
-    });
-    currentMonthTips.forEach(e => totalMonth += e.amount);
-
-    const tipsByPosition = this.getTipDataBy(this.state.positions, 'position');
-    const tipsByShiftType = this.getTipDataBy(this.state.shiftTypes, 'shiftType');
-
-    const tipsByMonth = [];
-    for (let i = 1; i <= 12; i++) {
-      const filteredArr = this.state.tips.filter(e => moment(e.date).format('M') === i.toString());
-      if (filteredArr.length) {
-        const {total, hours, hourly} = this.getTotalsAndHourly(filteredArr);
-        tipsByMonth.push({
-          name: moment(filteredArr[0].date).format('MMMM'), 
-          total: '$' + total, 
-          hours, 
-          hourly: '$' + hourly
-        });
-      }
-    }
-
-    const tipsByDay = [];
-    for (let i = 0; i < 7; i++) {
-      const filteredArr = this.state.tips.filter(e => new Date(e.date).getDay() === i);
-      if (filteredArr.length) {
-        const {total, hours, hourly} = this.getTotalsAndHourly(filteredArr);
-        tipsByDay.push({
-          name: moment(filteredArr[0].date).format('dddd'),
-           total: '$' + total, 
-           hours, 
-           hourly: '$' + hourly
-          });
-      }
-    }
-
-    this.setState({
-      tipInfo: {
-        total,
-        totalYear,
-        totalMonth,
-        average,
-        hourly
-      },
-      tipsByPosition,
-      tipsByShiftType,
-      tipsByMonth,
-      tipsByDay
-    });
+    return { total: '$' + total, hours, hourly };
   }
 
   render() {
     console.log(this.state);
     let tipListData;
-    if (!this.state.tips.length) {
+    if (!this.state.tipData.tipsArr) {
       tipListData = (<p>You have no tips currently!</p>);
     } else {
       const headers = ['Tips', 'Hours', '$/Hour'];
       tipListData = (
         <Fragment>
           <h3>Tip Data By</h3>
-          <Table headers={['Position', ...headers]} rowList={this.state.tipsByPosition} />
-          <Table headers={['Type of Shift', ...headers]} rowList={this.state.tipsByShiftType} />
-          <Table headers={['Month', ...headers]} rowList={this.state.tipsByMonth} />
-          <Table headers={['Weekday', ...headers]} rowList={this.state.tipsByDay} />
+          <Table headers={['Position', ...headers]} rowData={this.state.tipDataByPosition} />
+          <Table headers={['Type of Shift', ...headers]} rowData={this.state.tipDataByShiftType} />
+          <Table headers={['Month', ...headers]} rowData={this.state.tipDataByMonth} />
+          <Table headers={['Weekday', ...headers]} rowData={this.state.tipDataByDay} />
         </Fragment>
       );
     }
@@ -170,11 +137,15 @@ export default class Dashboard extends Component {
             <h1 className="display-2">Welcome {this.state.name}</h1>
           </div>
           <div className="col-12">
-            <p>Total Tips Made: ${this.state.tipInfo.total}</p>
-            <p>Tips Made This Year: ${this.state.tipInfo.totalYear}</p>
-            <p>Tips Made This Month: ${this.state.tipInfo.totalMonth}</p>
-            <p>Average Tips per Shift: ${this.state.tipInfo.average}</p>
-            <p>Hourly: ${this.state.tipInfo.hourly}/hr</p>
+            {this.state.tipData.totals === undefined || 
+              <Fragment>
+                <p>Total Tips Made: ${this.state.tipData.totals.total || 0}</p>
+                <p>Tips Made This Year: ${this.state.tipDataCurrYear.totals.total || 0}</p>
+                <p>Tips Made This Month: ${this.state.tipDataByMonth[moment().format('MMMM')].totals.total || 0}</p>
+                <p>Average Tips per Shift: ${this.state.tipData.totals.average || 0}</p>
+                <p>Hourly: ${this.state.tipData.totals.hourly || 0}/hr</p>
+              </Fragment>
+            }
           </div>
         </div>
         <div className="row">

@@ -19,8 +19,8 @@ export default class ChartsPage extends Component {
       tipData: {},
       tipDataByPosition: {},
       tipDataByShiftType: {},
-      tipsByMonth: {},
-      tipsByDay: {}
+      tipDataByMonth: {},
+      tipDataByDay: {}
     };
   } 
 
@@ -31,8 +31,8 @@ export default class ChartsPage extends Component {
         const user = response.data.user;
         const tipDataByPosition = {};
         const tipDataByShiftType = {};
-        const tipsByMonth = {};
-        const tipsByDay = {};
+        const tipDataByMonth = {};
+        const tipDataByDay = {};
 
         const createTipArrayAndPush = (obj, key, tip) => {
           obj[key] = obj[key] || {};
@@ -49,22 +49,22 @@ export default class ChartsPage extends Component {
           createTipArrayAndPush(tipDataByPosition[tip.position], tip.shiftType, tip);
 
           const weekday = moment(tip.date).format('dddd');
-          createTipArrayAndPush(tipsByDay, weekday, tip);
-          createTipArrayAndPush(tipsByDay[weekday], tip.shiftType, tip);
+          createTipArrayAndPush(tipDataByDay, weekday, tip);
+          createTipArrayAndPush(tipDataByDay[weekday], tip.shiftType, tip);
 
           createTipArrayAndPush(tipDataByPosition[tip.position], weekday, tip);
           createTipArrayAndPush(tipDataByPosition[tip.position][weekday], tip.shiftType, tip);
 
           const month = moment(tip.date).format('MMMM');
-          createTipArrayAndPush(tipsByMonth, month, tip);
+          createTipArrayAndPush(tipDataByMonth, month, tip);
 
           createTipArrayAndPush(tipDataByPosition[tip.position], month, tip);
         }
 
         this.generateTipTotals(tipDataByPosition);
         this.generateTipTotals(tipDataByShiftType);
-        this.generateTipTotals(tipsByMonth);
-        this.generateTipTotals(tipsByDay);
+        this.generateTipTotals(tipDataByMonth);
+        this.generateTipTotals(tipDataByDay);
         
         this.setState({
           positions: user.positions,
@@ -75,8 +75,8 @@ export default class ChartsPage extends Component {
           },
           tipDataByPosition,
           tipDataByShiftType,
-          tipsByMonth,
-          tipsByDay,
+          tipDataByMonth,
+          tipDataByDay
         });
       })
       .catch(err => console.log(err));
@@ -161,7 +161,7 @@ export default class ChartsPage extends Component {
     return filterdDataArr;
   };
 
-  getFormattedArrLine(arr, rowType) {
+  getFormattedArrLine(arr, rowType, position) {
     const dataArr = [];
   
     if (arr) {
@@ -176,7 +176,7 @@ export default class ChartsPage extends Component {
       const column0 = (rowType === 'date') ? { type: 'date', label: 'Date' } : rowType;
       dataArr.unshift([
         column0,
-        'Tips',
+        position || 'Tips',
       ]);
     }
     
@@ -258,7 +258,7 @@ export default class ChartsPage extends Component {
               height={'500px'}
               chartType="ColumnChart"
               loader={<div>Loading Chart</div>}
-              data={this.getFormattedArrBar(days, this.state.tipsByDay, 'average', 'ShiftType')}
+              data={this.getFormattedArrBar(days, this.state.tipDataByDay, 'average', 'ShiftType')}
               options={{
                 title: 'Average Tips by Weekday for all Positions',
                 chartArea: { width: '50%' },
@@ -323,7 +323,7 @@ export default class ChartsPage extends Component {
               height={'500px'}
               chartType="PieChart"
               loader={<div>Loading Chart</div>}
-              data={this.getFormattedArrPie(months, this.state.tipsByMonth, 'Month')}
+              data={this.getFormattedArrPie(months, this.state.tipDataByMonth, 'Month')}
               options={{
                 title: 'Percentage of Tips Earned by Month',
                 is3D: true
@@ -338,7 +338,7 @@ export default class ChartsPage extends Component {
               height={'500px'}
               chartType="PieChart"
               loader={<div>Loading Chart</div>}
-              data={this.getFormattedArrPie(days, this.state.tipsByDay, 'Day')}
+              data={this.getFormattedArrPie(days, this.state.tipDataByDay, 'Day')}
               options={{
                 title: 'Percentage of Tips Earned by Day',
                 is3D: true
@@ -377,7 +377,7 @@ export default class ChartsPage extends Component {
                     height={'500px'}
                     chartType="LineChart"
                     loader={<div>Loading Chart</div>}
-                    data={this.getFormattedArrLine(this.state.tipDataByPosition[position].tipsArr, 'date')}
+                    data={this.getFormattedArrLine(this.state.tipDataByPosition[position].tipsArr, 'date', position)}
                     options={{
                       title: `Tips Earned for ${position} by Date`,
                       hAxis: {

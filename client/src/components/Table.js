@@ -8,10 +8,12 @@ const Row = props => {
       tableData.push(<td key={key}>{props.rowData[key]}</td>);
     } 
   } 
-  if (props.delete !== null) {
+  if (props.name) {
+    tableData.unshift(<td key={props.name}>{props.name}</td>);
+  }
+  if (props.delete) {
     tableData.push(<td key={props.rowData.id}><Link to={"/edit/" + props.rowData.id}>Edit</Link> | <a className="text-danger" href="# " onClick={ () => props.delete(props.rowData.id) }>Delete</a></td>);
   }
-  
 
   return (
     <tr>
@@ -22,6 +24,21 @@ const Row = props => {
 
 
 const Table = props => {
+  let rowList = [];
+  if (Array.isArray(props.rowData)) {
+    rowList = props.rowData.map(e => {
+      return <Row rowData={e} delete={props.delete} key={e.id}/>;
+    });
+  } else {
+    for (const key in props.rowData) {
+      if (props.rowData.hasOwnProperty(key)) {
+        const element = props.rowData[key];
+        rowList.push((<Row rowData={element.totals} key={key} name={key} />));
+      }
+    }
+  }
+
+  console.log(rowList);
   return (
     <table className="table">
       <thead className="thead-light">
@@ -32,9 +49,7 @@ const Table = props => {
         </tr>
       </thead>
       <tbody>
-        {props.rowList.map(e => {
-          return <Row rowData={e} delete={props.delete || null} key={e.name || e.id}/>;
-        })}
+        {rowList}
       </tbody>
     </table>
   );

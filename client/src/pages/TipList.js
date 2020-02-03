@@ -60,7 +60,7 @@ export default class TipList extends Component {
     } else {
       tipListData = (
         <Fragment>
-          <Table headers={['Date', 'Position', 'Type of Shift', 'Amount', 'Shift Length', 'Actions']} delete={this.deleteTip} rowList={this.formatTipsForTable()} />
+          <Table headers={['Date', 'Position', 'Type of Shift', 'Amount', 'Shift Length', 'Actions']} delete={this.deleteTip} rowData={this.formatTipsForTable()} />
         </Fragment>
       );
     }
