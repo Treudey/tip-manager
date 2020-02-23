@@ -2,8 +2,15 @@ import React, { Component, Fragment } from 'react';
 import axios from 'axios';
 import moment from 'moment';
 
-import Table from '../components/Table'
+import Table from '../components/Table';
 
+const getSafe = (fn, defaultVal) => {
+  try {
+    return fn();
+  } catch (e) {
+    return defaultVal;
+  }
+}
 export default class Dashboard extends Component {
 
   constructor(props) {
@@ -30,6 +37,16 @@ export default class Dashboard extends Component {
       .then(response => {
         console.log(response.data.message);
         const user = response.data.user;
+        this.setState({
+          name: user.name,
+          email: user.email,
+          password: user.password,
+        });
+        
+        if (!user.tips.length) {
+          return;
+        }
+
         const tipDataByPosition = {};
         const tipDataByShiftType = {};
         const tipDataByMonth = {};
@@ -64,17 +81,14 @@ export default class Dashboard extends Component {
         this.generateTipTotals(tipDataCurrYear);
         const tipTotals = this.getTotalsAndHourly(user.tips);
 
-        this.setState({ 
-          name: user.name,
-          email: user.email,
-          password: user.password,
+        this.setState({
           positions: user.positions,
           shiftTypes: user.shiftTypes,
           tipData: {
             tipsArr: user.tips,
             totals: {
               ...tipTotals,
-              average: (tipTotals.total / user.tips.length).toFixed(2)
+              average: '$' + (+tipTotals.total.replace('$', '') / user.tips.length).toFixed(2)
             }
           },
           tipDataByPosition,
@@ -109,7 +123,7 @@ export default class Dashboard extends Component {
     let hourly = total / hours;
     hourly = '$' + hourly.toFixed(2);
 
-    return { total: '$' + total, hours, hourly };
+    return { total: '$' + total.toFixed(2), hours, hourly };
   }
 
   render() {
@@ -137,15 +151,13 @@ export default class Dashboard extends Component {
             <h1 className="display-2">Welcome {this.state.name}</h1>
           </div>
           <div className="col-12">
-            {this.state.tipData.totals === undefined || 
-              <Fragment>
-                <p>Total Tips Made: ${this.state.tipData.totals.total || 0}</p>
-                <p>Tips Made This Year: ${this.state.tipDataCurrYear.totals.total || 0}</p>
-                <p>Tips Made This Month: ${this.state.tipDataByMonth[moment().format('MMMM')].totals.total || 0}</p>
-                <p>Average Tips per Shift: ${this.state.tipData.totals.average || 0}</p>
-                <p>Hourly: ${this.state.tipData.totals.hourly || 0}/hr</p>
-              </Fragment>
-            }
+            <Fragment>
+              <p>Total Tips Made: {getSafe(() => this.state.tipData.totals.total, '$0')}</p>
+              <p>Tips Made This Year: {getSafe(() => this.state.tipDataCurrYear.totals.total, '$0')}</p>
+              <p>Tips Made This Month: {getSafe(() => this.state.tipDataByMonth[moment().format('MMMM')].totals.total, '$0')}</p>
+              <p>Average Tips per Shift: {getSafe(() => this.state.tipData.totals.average, 0)}</p>
+              <p>Hourly: {getSafe(() => this.state.tipData.totals.hourly, '$0')}/hr</p>
+            </Fragment>
           </div>
         </div>
         <div className="row">

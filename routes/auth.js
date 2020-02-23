@@ -7,9 +7,12 @@ const authController = require('../controllers/auth');
 router.get('/userdata', authController.getUserData);
 
 // GET /auth/userlists
-router.get('/userlists', authController.getUserPositionsAndShiftTypes);
+router.get('/userlists', authController.getUserOptionsLists);
 
-// PUT /auth/signup
+// PUT /auth/userlists
+router.put('/userlists', authController.addToUserOptionsLists);
+
+// POST /auth/signup
 router.post('/signup', authController.signup);
 
 // POST /auth/login

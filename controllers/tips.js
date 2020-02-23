@@ -1,3 +1,5 @@
+const { validationResult } = require('express-validator');
+
 const Tip = require('../models/tip.model');
 const User = require('../models/user.model');
 const { advErrorHandler, errorHandler } = require('../utils/errorHandlers');
@@ -46,6 +48,14 @@ exports.getTip = (req, res, next) => {
 };
 
 exports.createTip = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).json({ 
+      message: 'Validation failed.', 
+      errors: errors.array() 
+    });
+  }
+
   const { userID, amount, position, shiftType, shiftLength, date } = req.body;
 
   const newTip = new Tip({
@@ -78,6 +88,14 @@ exports.createTip = (req, res, next) => {
 };
 
 exports.updateTip = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).json({ 
+      message: 'Validation failed.', 
+      errors: errors.array() 
+    });
+  }
+
   const tipID = req.params.tipID;
   const { userID, amount, position, shiftType, shiftLength, date } = req.body;
 

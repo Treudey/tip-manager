@@ -16,7 +16,7 @@ exports.getUserData = (req, res, next) => {
     .catch(err => errorHandler(err, next));
 };
 
-exports.getUserPositionsAndShiftTypes = (req, res, next) => {
+exports.getUserOptionsLists = (req, res, next) => {
   const userID = req.query.userID;
 
   if (!userID) {
@@ -30,6 +30,24 @@ exports.getUserPositionsAndShiftTypes = (req, res, next) => {
         positions: user.positions,
         shiftTypes: user.shiftTypes
       });
+    })
+    .catch(err => errorHandler(err, next));
+};
+
+exports.addToUserOptionsLists = (req, res, next) => {
+  const { listName, newOption, userID } = req.body;
+
+  User.findById(userID)
+    .then(user => {
+      if (!user) {
+        advErrorHandler('Could not find user', 404);
+      }
+
+      user[listName].push(newOption);
+      return user.save();
+    })
+    .then(result => {
+      res.status(200).json({ message: 'Option successfully added to user\'s list' });
     })
     .catch(err => errorHandler(err, next));
 };

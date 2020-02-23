@@ -23,6 +23,14 @@ export default class AddTip extends Component {
       },
       newPosition: '',
       newShiftType: '',
+      errors: {
+        amount: '',
+        shiftLength: '',
+        position: '',
+        shiftType: '',
+        newPosition: '',
+        newShiftType: ''
+      },
       tipAdded: false,
       positionOptions: [],
       shiftTypeOptions: [],
@@ -37,10 +45,10 @@ export default class AddTip extends Component {
     axios.get('http://localhost:5000/auth/userlists?userID=' + this.state.tip.userID)
       .then(response => {
         console.log(response.data.message);
-        const tip = {...this.state.tip};
-        tip.position = response.data.positions[0];
-        tip.shiftType = response.data.shiftTypes[0];
         if (response.data.positions.length) {
+          const tip = {...this.state.tip};
+          tip.position = response.data.positions[0];
+          tip.shiftType = response.data.shiftTypes[0];
           this.setState({ 
             tip,
             positionOptions: [...response.data.positions, 'New'],
@@ -56,6 +64,15 @@ export default class AddTip extends Component {
   }
 
   onChangeInput(e) {
+    const errors = {...this.state.errors};
+
+    if (Object.keys(errors).includes(e.target.id) || this.state.hasOwnProperty(e.target.id)) {
+      if (errors[e.target.id] !== '') {
+        errors[e.target.id] = '';
+        this.setState({ errors });
+      }
+    }
+
     if (this.state.hasOwnProperty(e.target.id)) {
       this.setState({[e.target.id]: e.target.value});
     }
@@ -66,7 +83,7 @@ export default class AddTip extends Component {
       return this.setState(
         {tip, showPositionModal: true},
         ()=>{
-          setTimeout(()=>{this.testInput && this.testInput.focus()}, 1);
+          setTimeout(()=>{this.input && this.input.focus()}, 1);
         }
         );
     }
@@ -75,7 +92,7 @@ export default class AddTip extends Component {
       return this.setState(
         {tip, showShiftTypeModal: true},
         ()=>{
-          setTimeout(()=>{this.testInput && this.testInput.focus()}, 1);
+          setTimeout(()=>{this.input && this.input.focus()}, 1);
         }
         );
     }
@@ -87,48 +104,128 @@ export default class AddTip extends Component {
   onSubmitTipForm(e) {
     e.preventDefault();
 
-    const tip = this.state.tip;
+    const tip = {...this.state.tip};
+    const errors = {...this.state.errors};
+    for (const key in tip) {
+      if (tip.hasOwnProperty(key)) {
+        const value = tip[key];
+        switch (key) {
+          case 'shiftLength': 
+            errors.shiftLength = 
+              !(!isNaN(value) && +value > 0 && +value < 1000)
+                ? 'The length of the shift must be a valid number between 0 and 1000'
+                : '';
+            break;
+          case 'amount': 
+            errors.amount = 
+              !(!isNaN(value) && +value > 0 && +value < 1000000)
+                ? 'The amount must be a valid number between 0 and 1,000,000'
+                : '';
+            break;
+          case 'position': 
+            errors.position = 
+            !(value.length > 0 && value.length <= 20)
+              ? 'The position must be a between 1 and 20 characters long'
+              : '';
+            break;
+          case 'shiftType': 
+            errors.shiftType = 
+            !(value.length > 0 && value.length <= 20)
+              ? 'The type of shift must be a between 1 and 20 characters long'
+              : '';
+            break;
+          default:
+            break;
+        }
+      }
+    }
+    console.log(errors);
+    if (!this.validateForm(errors)) {
+      return this.setState({errors});
+    }
 
     console.log(tip);
-
+    
     axios.post('http://localhost:5000/tips/create', tip)
       .then(res => { 
         console.log(res.data.message);
-
-        if (!this.state.positionOptions.includes(tip.position)) {
-          this.setState({positionOptions: [tip.position, ...this.state.positionOptions]});
-        }
-        if (!this.state.shiftTypeOptions.includes(tip.shiftType)) {
-          this.setState({shiftTypeOptions: [tip.shiftType, ...this.state.shiftTypeOptions]});
-        }
-
-        const resetTip = {...this.state.tip};
-        resetTip.amount = 0;
-        resetTip.position = this.state.positionOptions[0];
-        resetTip.shiftType = this.state.shiftTypeOptions[0];
-        resetTip.shiftLength = 0;
-        resetTip.date = new Date();
+        
+        tip.amount = 0;
+        tip.shiftLength = 0;
+        tip.date = new Date();
         this.setState({
-          tip: resetTip,
+          tip,
           tipAdded: true,
           messageTimer: setTimeout(() => this.setState( {tipAdded: false} ), 3000)
         });
+
+        return axios.get('http://localhost:5000/auth/userlists?userID=' + this.state.tip.userID);
+      })
+      .then(response => {
+        console.log(response.data.message);
         
-       })
+        if (response.data.positions.length) {
+          tip.position = response.data.positions[0];
+          tip.shiftType = response.data.shiftTypes[0];
+          this.setState({
+            tip,
+            positionOptions: [...response.data.positions, 'New'],
+            shiftTypeOptions: [...response.data.shiftTypes, 'New'],
+          });
+        }
+      })
       .catch(err => console.log(err));
   }
 
-  onSubmitNewInput(input) {
+  onSubmitNewInput(inputType) {
+    let newInput = this.state['new' + inputType.replace(inputType.charAt(0), inputType.charAt(0).toUpperCase())];
+    let errors = {...this.state.errors};
+    if (inputType === 'shiftType'){
+      errors.newShiftType = 
+      !(newInput.length > 0 && newInput.length <= 20)
+        ? 'The type of shift must be a between 1 and 20 characters long'
+        : '';
+    } else if (inputType === 'position') {
+      errors.newPosition = 
+      !(newInput.length > 0 && newInput.length <= 20)
+        ? 'The position must be a between 1 and 20 characters long'
+        : '';
+    }
+    
+    console.log(errors);
+    if (!this.validateForm(errors)) {
+      return this.setState({errors});
+    }
 
     const tip = {...this.state.tip};
-    tip[input] = this.state['new' + input.replace(input.charAt(0), input.charAt(0).toUpperCase())];
+    tip[inputType] = newInput;
 
-    this.setState({
-      tip,
-      [input + 'Options']: [tip[input], ...this.state[input + 'Options']],
-      showPositionModal: false,
-      showShiftTypeModal: false
-    });
+    axios.put('http://localhost:5000/auth/userlists', {
+      userID: this.state.tip.userID,
+      listName: inputType + 's',
+      newOption: newInput
+    })
+      .then(response => {
+        console.log(response.data.message);
+        this.setState({
+          tip,
+          [inputType + 'Options']: [newInput, ...this.state[inputType + 'Options']],
+          newPosition: '',
+          newShiftType: '',
+          showPositionModal: false,
+          showShiftTypeModal: false
+        });
+      })
+      .catch(err => console.log(err));
+  }
+
+  validateForm = (errors) => {
+    let valid = true;
+    Object.values(errors).forEach(
+      // if we have an error string set valid to false
+      (val) => val.length > 0 && (valid = false)
+    );
+    return valid;
   }
 
   options(optionsArr) {
@@ -138,6 +235,7 @@ export default class AddTip extends Component {
   }
 
   render() {
+    const errors = this.state.errors;
     let positionsAndShiftTypes;
     if (!this.state.positionOptions.length) {
       positionsAndShiftTypes = (
@@ -151,6 +249,8 @@ export default class AddTip extends Component {
             value={this.state.tip.position}
             onChange={e => this.onChangeInput(e)}
           />
+          {errors.position.length > 0 && 
+            <span className='error text-danger'>{errors.position}</span>}
         </div>
         <div className="form-group">
           <label>Type of Shift: </label>
@@ -161,6 +261,8 @@ export default class AddTip extends Component {
             value={this.state.tip.shiftType}
             onChange={e => this.onChangeInput(e)}
           />
+          {errors.shiftType.length > 0 && 
+            <span className='error text-danger'>{errors.shiftType}</span>}
         </div>
         </Fragment>
       );
@@ -196,7 +298,6 @@ export default class AddTip extends Component {
     return (
     <div className='container-fluid'>
       <h3>Add a Tip</h3>
-      {this.state.tipAdded === true && <p className="text-success" >Tip successfully added!</p>}
       <form onSubmit={this.onSubmitTipForm}>
         <div className="form-group">
           <label>Date: </label>
@@ -221,6 +322,8 @@ export default class AddTip extends Component {
             value={this.state.tip.shiftLength}
             onChange={e => this.onChangeInput(e)}
           />
+          {errors.shiftLength.length > 0 && 
+            <span className='error text-danger'>{errors.shiftLength}</span>}
         </div>
         <div className="form-group"> 
           <label>Amount: </label>
@@ -232,12 +335,15 @@ export default class AddTip extends Component {
             value={this.state.tip.amount}
             onChange={e => this.onChangeInput(e)}
           />
+          {errors.amount.length > 0 && 
+            <span className='error text-danger'>{errors.amount}</span>}
         </div>
         
         <div className="form-group">
           <input type="submit" value="Add Tip" className="btn btn-primary" />
         </div>
       </form>
+      {this.state.tipAdded === true && <span className="text-success" >Tip successfully added!</span>}
       <Modal show={this.state.showPositionModal} onHide={() => this.setState({showPositionModal: false})} >
         <Modal.Header closeButton>
           <Modal.Title>Add a Position</Modal.Title>
@@ -248,9 +354,11 @@ export default class AddTip extends Component {
             type="text" 
             className="form-control" 
             id="newPosition"
-            ref={(text) => { this.testInput = text; }} 
+            ref={(text) => { this.input = text; }} 
             onChange={e => this.onChangeInput(e)}
           />
+          {errors.newPosition.length > 0 && 
+            <span className='error text-danger'>{errors.newPosition}</span>}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => this.setState({showPositionModal: false})}>
@@ -271,9 +379,11 @@ export default class AddTip extends Component {
             type="text" 
             className="form-control" 
             id="newShiftType"
-            ref={(text) => { this.testInput = text; }} 
+            ref={(text) => { this.input = text; }} 
             onChange={e => this.onChangeInput(e)}
           ></input>
+          {errors.newShiftType.length > 0 && 
+            <span className='error text-danger'>{errors.newShiftType}</span>}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => this.setState({showShiftTypeModal: false})}>
