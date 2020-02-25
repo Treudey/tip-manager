@@ -17,12 +17,14 @@ class App extends Component {
 
   state = {
     isLoggedIn: false,
-    userID: null
+    userID: null,
+    token: null
   };
 
   componentDidMount() {
+    const token = localStorage.getItem('token');
     let expiryDate = localStorage.getItem('expiryDate');
-    if (!expiryDate) {
+    if (!token || !expiryDate) {
       return;
     }
     expiryDate = new Date(expiryDate).getTime();
@@ -32,7 +34,7 @@ class App extends Component {
     }
     const userID = localStorage.getItem('userID');
     const timeLeft = expiryDate - Date.now();
-    this.setState({ isLoggedIn: true, userID });
+    this.setState({ isLoggedIn: true, userID, token });
     this.setAutoLogout(timeLeft);
   }
 
@@ -46,17 +48,19 @@ class App extends Component {
         if (res.status !== 200 && res.status !== 201) {
           throw new Error('Could not be authenticated!');
         }
+
         this.setState({
           isLoggedIn: true,
-          userID: res.data.userID
+          userID: res.data.userID,
+          token: res.data.token
         });
         console.log(res.data.message);
         localStorage.setItem('userID', res.data.userID);
-        const millisecs = 90 * 60 * 1000;
+        localStorage.setItem('token', res.data.token);
+        const millisecs = 60 * 60 * 1000;
         const expiryDate = new Date(Date.now() + millisecs);
         localStorage.setItem('expiryDate', expiryDate.toISOString());
         this.setAutoLogout(millisecs);
-        
       })
       .catch(err => console.log(err));
   };
@@ -66,7 +70,7 @@ class App extends Component {
     axios.post('http://localhost:5000/auth/signup', signupData)
       .then(res => {
         if (res.status === 422 ) {
-          throw new Error('Validation failed.');
+          throw new Error('Validation failed. Make sure the email address isn\'t already being used');
         }
         if (res.status !== 200 && res.status !== 201) {
           throw new Error('Could not create new user!');
@@ -78,7 +82,8 @@ class App extends Component {
   };
 
   logoutHandler = () => {
-    this.setState({ isLoggedIn: false });
+    this.setState({ isLoggedIn: false, token: null });
+    localStorage.removeItem('token');
     localStorage.removeItem('expiryDate');
     localStorage.removeItem('userID');
     this.props.history.replace('/');
@@ -91,7 +96,6 @@ class App extends Component {
   };
 
   render() {
-
     let routes;
     if (this.state.isLoggedIn === false) {
       routes = (
@@ -125,7 +129,7 @@ class App extends Component {
             render={props => (
               <Dashboard 
                 {...props}
-                userID={this.state.userID}
+                token={this.state.token}
               />
             )} 
           />
@@ -134,7 +138,7 @@ class App extends Component {
             render={props => (
               <TipList 
                 {...props}
-                userID={this.state.userID}
+                token={this.state.token}
               />
             )} 
           />
@@ -143,7 +147,7 @@ class App extends Component {
             render={props => (
               <ChartsPage 
                 {...props}
-                userID={this.state.userID}
+                token={this.state.token}
               />
             )} 
           />
@@ -152,7 +156,7 @@ class App extends Component {
             render={props => (
               <AddTip 
                 {...props}
-                userID={this.state.userID}
+                token={this.state.token}
               />
             )} 
           />
@@ -161,7 +165,7 @@ class App extends Component {
             render={props => (
               <EditTip
                 {...props}
-                userID={this.state.userID}
+                token={this.state.token}
               />
             )} 
           />

@@ -6,8 +6,8 @@ import "react-datepicker/dist/react-datepicker.css";
 
 export default class TipForm extends Component {
   state = {
+    token: this.props.token,
     tip: {
-      userID: this.props.userID,
       amount: 0,
       position: '',
       shiftType: '',
@@ -33,7 +33,11 @@ export default class TipForm extends Component {
   };
 
   componentDidMount() {
-    axios.get('http://localhost:5000/auth/userlists?userID=' + this.state.tip.userID)
+    axios.get('http://localhost:5000/auth/userlists', { 
+      headers: {
+        Authorization: 'Bearer ' + this.state.token
+      }
+    })
       .then(response => {
         console.log(response.data.message);
         const tip = {...this.state.tip};
@@ -50,10 +54,12 @@ export default class TipForm extends Component {
 
         if (this.props.editing) {
           axios.get(
-            'http://localhost:5000/tips/' + 
-            this.props.tipID +
-            '?userID=' +
-            this.state.tip.userID
+            'http://localhost:5000/tips/' + this.props.tipID,
+            { 
+              headers: {
+                Authorization: 'Bearer ' + this.state.token
+              }
+            }
           )
           .then(res => {
             console.log(res.data.message);
@@ -160,7 +166,11 @@ export default class TipForm extends Component {
     console.log(tip);
 
     if (this.props.editing) {
-      axios.put('http://localhost:5000/tips/' + this.props.tipID, tip)
+      axios.put('http://localhost:5000/tips/' + this.props.tipID, tip, { 
+        headers: {
+          Authorization: 'Bearer ' + this.state.token
+        }
+      })
         .then(res => {
           console.log(res.data.message);
           this.props.history.replace('/alltips');
@@ -169,7 +179,11 @@ export default class TipForm extends Component {
 
     } else {
 
-      axios.post('http://localhost:5000/tips/create', tip)
+      axios.post('http://localhost:5000/tips/create', tip, { 
+        headers: {
+          Authorization: 'Bearer ' + this.state.token
+        }
+      })
       .then(res => { 
         console.log(res.data.message);
         
@@ -182,7 +196,11 @@ export default class TipForm extends Component {
           messageTimer: setTimeout(() => this.setState( {tipAdded: false} ), 3000)
         });
 
-        return axios.get('http://localhost:5000/auth/userlists?userID=' + this.state.tip.userID);
+        return axios.get('http://localhost:5000/auth/userlists', { 
+          headers: {
+            Authorization: 'Bearer ' + this.state.token
+          }
+        });
       })
       .then(response => {
         console.log(response.data.message);
@@ -225,9 +243,13 @@ export default class TipForm extends Component {
     tip[inputType] = newInput;
 
     axios.put('http://localhost:5000/auth/userlists', {
-      userID: this.state.tip.userID,
       listName: inputType + 's',
       newOption: newInput
+    },
+    { 
+      headers: {
+        Authorization: 'Bearer ' + this.state.token
+      }
     })
       .then(response => {
         console.log(response.data.message);

@@ -7,7 +7,7 @@ const AddTip = (props) => {
   <div className='container-fluid'>
     <h3>Add a Tip</h3>
     <TipForm 
-      userID={props.userID}
+      token={props.token}
       editing={false}
       tipID={null}
     />

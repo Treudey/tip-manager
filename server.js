@@ -26,7 +26,10 @@ app.use('/auth', authRoutes);
 
 const uri = process.env.ATLAS_URI;
 mongoose.connect(uri, { 
-  useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true 
+  useNewUrlParser: true, 
+  useCreateIndex: true, 
+  useUnifiedTopology: true,
+  useFindAndModify: false
 })
 .then(result => {
   console.log('MongoDB database connection established successfully')

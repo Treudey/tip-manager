@@ -17,10 +17,9 @@ export default class Dashboard extends Component {
     super(props);
 
     this.state = { 
-      userID: props.userID,
+      token: props.token,
       name: '',
       email: '',
-      password: '',
       shiftTypes: [],
       positions: [],
       tipData: {},
@@ -33,7 +32,11 @@ export default class Dashboard extends Component {
   } 
 
   componentDidMount() {
-    axios.get('http://localhost:5000/auth/userdata?userID=' + this.state.userID)
+    axios.get('http://localhost:5000/auth/userdata', { 
+      headers: {
+        Authorization: 'Bearer ' + this.state.token
+      }
+    })
       .then(response => {
         console.log(response.data.message);
         const user = response.data.user;

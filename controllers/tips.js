@@ -5,11 +5,7 @@ const User = require('../models/user.model');
 const { advErrorHandler, errorHandler } = require('../utils/errorHandlers');
 
 exports.getTips = (req, res, next) => {
-  const userID = req.query.userID;
-
-  if (!userID) {
-    advErrorHandler('Please provide a userID as query', 400);
-  }
+  const userID = req.userID;
   
   Tip.find({ user: userID })
     .sort({ 'date' : 'descending' })
@@ -24,12 +20,8 @@ exports.getTips = (req, res, next) => {
 };
 
 exports.getTip = (req, res, next) => {
-  const userID = req.query.userID;
+  const userID = req.userID;
   const tipID = req.params.tipID;
-  
-  if (!userID) {
-    advErrorHandler('Please provide a userID as query', 400);
-  }
 
   console.log(tipID);
   console.log(userID);
@@ -50,13 +42,14 @@ exports.getTip = (req, res, next) => {
 exports.createTip = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(422).json({ 
-      message: 'Validation failed.', 
-      errors: errors.array() 
-    });
+    const error = new Error('Validation failed.') 
+    error.statsCode = 422;
+    error.data =  errors.array() 
+    throw error;
   }
 
-  const { userID, amount, position, shiftType, shiftLength, date } = req.body;
+  const userID = req.userID;
+  const { amount, position, shiftType, shiftLength, date } = req.body;
 
   const newTip = new Tip({
     user: userID,
@@ -90,14 +83,15 @@ exports.createTip = (req, res, next) => {
 exports.updateTip = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(422).json({ 
-      message: 'Validation failed.', 
-      errors: errors.array() 
-    });
+    const error = new Error('Validation failed.') 
+    error.statsCode = 422;
+    error.data =  errors.array() 
+    throw error;
   }
 
   const tipID = req.params.tipID;
-  const { userID, amount, position, shiftType, shiftLength, date } = req.body;
+  const userID = req.userID;
+  const { amount, position, shiftType, shiftLength, date } = req.body;
 
   Tip.findById(tipID)
     .then(tip => {
@@ -137,7 +131,7 @@ exports.updateTip = (req, res, next) => {
 
 exports.deleteTip = (req, res, next) => {
   const tipID = req.params.tipID;
-  const userID = req.body.userID;
+  const userID = req.userID;
 
   Tip.findById(tipID)
     .then(tip => {

@@ -12,13 +12,17 @@ export default class TipList extends Component {
     this.deleteTip = this.deleteTip.bind(this);
 
     this.state = { 
-      userID: props.userID,
+      token: props.token,
       tips: []
      };
   } 
 
   componentDidMount() {
-    axios.get('http://localhost:5000/tips/?userID=' + this.state.userID)
+    axios.get('http://localhost:5000/tips/', { 
+      headers: {
+        Authorization: 'Bearer ' + this.state.token
+      }
+    })
       .then(response => {
         console.log(response.data.message);
         this.setState({ tips: response.data.tips });
@@ -28,9 +32,9 @@ export default class TipList extends Component {
 
   deleteTip(id) {
     axios.delete('http://localhost:5000/tips/' + id, {
-      data: {
-        userID: this.state.userID
-      }  
+      headers: {
+        Authorization: 'Bearer ' + this.state.token
+      }, 
     })
       .then(res => console.log(res.data.message))
       .catch(err => console.log(err));
