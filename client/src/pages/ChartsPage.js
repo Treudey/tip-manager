@@ -33,18 +33,29 @@ export default class ChartsPage extends Component {
       .then(response => {
         console.log(response.data.message);
         const user = response.data.user;
+        const tipData = { tipsArr: user.tips };
         const tipDataByPosition = {};
         const tipDataByShiftType = {};
         const tipDataByMonth = {};
         const tipDataByDay = {};
 
+        const addToTotalAndHours = (obj, tip) => {
+          obj.totals = obj.totals || {};
+          obj.totals.total = obj.totals.total || 0;
+          obj.totals.total += tip.amount;
+          obj.totals.hours = obj.totals.hours || 0;
+          obj.totals.hours += tip.shiftLength;
+        };
+
         const createTipArrayAndPush = (obj, key, tip) => {
           obj[key] = obj[key] || {};
           obj[key].tipsArr = obj[key].tipsArr || [];
           obj[key].tipsArr.push(tip);
+          addToTotalAndHours(obj[key], tip);
         };
 
         for (const tip of user.tips) {
+          addToTotalAndHours(tipData, tip);
 
           createTipArrayAndPush(tipDataByPosition, tip.position, tip);
 
@@ -65,23 +76,22 @@ export default class ChartsPage extends Component {
           createTipArrayAndPush(tipDataByPosition[tip.position], month, tip);
         }
 
+        this.generateTipTotals(tipData);
         this.generateTipTotals(tipDataByPosition);
         this.generateTipTotals(tipDataByShiftType);
         this.generateTipTotals(tipDataByMonth);
         this.generateTipTotals(tipDataByDay);
+
         
         this.setState({
           positions: user.positions,
           shiftTypes: user.shiftTypes,
-          tipData: {
-            tipsArr: user.tips,
-            totals: this.getTotalsAndHourly(user.tips)
-          },
+          tipData,
           tipDataByPosition,
           tipDataByShiftType,
           tipDataByMonth,
           tipDataByDay
-        });
+        }, () => console.log(this.state));
       })
       .catch(err => console.log(err));
   }
@@ -90,8 +100,8 @@ export default class ChartsPage extends Component {
     for (const key in object) {
       if (object.hasOwnProperty(key)) {
         const element = object[key];
-        if (Array.isArray(element) && element.length) {
-          object.totals = this.getTotalsAndHourly(element);
+        if (key === 'totals' && object.tipsArr.length) {
+          Object.assign(element, this.getAverageAndHourly(element, object.tipsArr.length));
         } else if (typeof element === 'object') {
           this.generateTipTotals(element);
         } 
@@ -99,18 +109,14 @@ export default class ChartsPage extends Component {
     }
   };
   
-  getTotalsAndHourly(tips) {
-    let total = 0;
-    tips.forEach(e => total += e.amount);
-    let average = total / tips.length;
+  getAverageAndHourly(totalsObj, tipsCount) {
+    let average = totalsObj.total / tipsCount;
     average = +average.toFixed(2);
 
-    let hours = 0;
-    tips.forEach(e => hours += e.shiftLength);
-    let hourly = total / hours;
+    let hourly = totalsObj.total / totalsObj.hours;
     hourly = +hourly.toFixed(2);
 
-    return { total, average, hours, hourly };
+    return { average, hourly };
   }
 
   getFormattedArrBar(fieldArr, obj, info, dataType) {

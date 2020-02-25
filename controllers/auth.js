@@ -119,5 +119,5 @@ exports.login = (req, res, next) => {
           userID: loadedUser._id.toString() 
         })
     })
-    .catch(err => errorHandler(err));
+    .catch(err => errorHandler(err, next));
 };
