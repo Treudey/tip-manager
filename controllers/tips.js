@@ -133,8 +133,11 @@ exports.deleteTip = (req, res, next) => {
   const tipID = req.params.tipID;
   const userID = req.userID;
 
+  let storedUser;
+  let tipToBeDeleted;
   Tip.findById(tipID)
     .then(tip => {
+      tipToBeDeleted = tip;
       if (!tip) {
         advErrorHandler('Could not find tip', 404);
       }
@@ -147,8 +150,29 @@ exports.deleteTip = (req, res, next) => {
       return User.findById(userID);
     })
     .then(user => {
-      user.tips.pull(tipID);
-      return user.save();
+      storedUser = user;
+      user.tips.pull({ _id: tipID });
+      return Tip.find({ user: userID });
+    })
+    .then(tips => {
+      let containsPosition = false;
+      let containsShiftType = false;
+      for (let i = 0; i < tips.length; i++) {
+        const tip = tips[i];
+        if (tipToBeDeleted.position === tip.position) {
+          containsPosition = true;
+        }
+        if (tipToBeDeleted.shiftType === tip.shiftType) {
+          containsShiftType = true;
+        }
+      }
+      if (!containsPosition) {
+        storedUser.positions.pull(tipToBeDeleted.position);
+      }
+      if (!containsShiftType) {
+        storedUser.shiftTypes.pull(tipToBeDeleted.shiftType);
+      }
+      return storedUser.save();
     })
     .then(result => {
       res.status(200).json({ message: 'Tip deleted' });

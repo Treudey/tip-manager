@@ -3,6 +3,7 @@ import axios from 'axios';
 import moment from 'moment';
 
 import Table from '../components/Table';
+import ErrorModal from '../components/ErrorModal';
 
 const getSafe = (fn, defaultVal) => {
   try {
@@ -13,23 +14,21 @@ const getSafe = (fn, defaultVal) => {
 }
 export default class Dashboard extends Component {
 
-  constructor(props) {
-    super(props);
-
-    this.state = { 
-      token: props.token,
-      name: '',
-      email: '',
-      shiftTypes: [],
-      positions: [],
-      tipData: {},
-      tipDataByPosition: {},
-      tipDataByShiftType: {},
-      tipDataByMonth: {},
-      tipDataByDay: {},
-      tipDataCurrYear: {}
-    };
-  } 
+  state = { 
+    token: this.props.token,
+    name: '',
+    email: '',
+    shiftTypes: [],
+    positions: [],
+    tipData: {},
+    tipDataByPosition: {},
+    tipDataByShiftType: {},
+    tipDataByMonth: {},
+    tipDataByDay: {},
+    tipDataCurrYear: {},
+    error: null
+  };
+  
 
   componentDidMount() {
     axios.get('http://localhost:5000/auth/userdata', { 
@@ -101,10 +100,14 @@ export default class Dashboard extends Component {
           tipDataCurrYear
         });
       })
-      .catch(err => console.log(err));
+      .catch(err => {
+        console.log(err);
+        err = new Error('Failed to load user data.');
+        this.setState({ error: err });
+      });
   }
 
-  generateTipTotals(object) {
+  generateTipTotals = (object) => {
     for (const key in object) {
       if (object.hasOwnProperty(key)) {
         const element = object[key];
@@ -117,7 +120,7 @@ export default class Dashboard extends Component {
     }
   };
 
-  getTotalsAndHourly(tips) {
+  getTotalsAndHourly = (tips) => {
     let total = 0;
     tips.forEach(e => total += e.amount);
 
@@ -127,7 +130,11 @@ export default class Dashboard extends Component {
     hourly = '$' + hourly.toFixed(2);
 
     return { total: '$' + total.toFixed(2), hours, hourly };
-  }
+  };
+
+  errorHandler = () => {
+    this.setState({ error: null });
+  };
 
   render() {
     console.log(this.state);
@@ -149,6 +156,7 @@ export default class Dashboard extends Component {
     
     return (
       <div className="container-fluid">
+        <ErrorModal error={this.state.error} onHandle={this.errorHandler} />
         <div className="row jumbotron text-center">
           <div className="col-12">
             <h1 className="display-2">Welcome {this.state.name}</h1>

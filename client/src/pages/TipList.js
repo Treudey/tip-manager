@@ -3,19 +3,15 @@ import axios from 'axios';
 import moment from 'moment';
 
 import Table from '../components/Table';
+import ErrorModal from '../components/ErrorModal';
 
 export default class TipList extends Component {
 
-  constructor(props) {
-    super(props);
-
-    this.deleteTip = this.deleteTip.bind(this);
-
-    this.state = { 
-      token: props.token,
-      tips: []
-     };
-  } 
+  state = { 
+    token: this.props.token,
+    tips: [],
+    error: null
+  };
 
   componentDidMount() {
     axios.get('http://localhost:5000/tips/', { 
@@ -27,24 +23,33 @@ export default class TipList extends Component {
         console.log(response.data.message);
         this.setState({ tips: response.data.tips });
       })
-      .catch(err => console.log(err));
+      .catch(err => {
+        console.log(err);
+        err = new Error('Failed to load tips.');
+        this.setState({ error: err });
+      });
   }
 
-  deleteTip(id) {
+  deleteTip = (id) => {
     axios.delete('http://localhost:5000/tips/' + id, {
       headers: {
         Authorization: 'Bearer ' + this.state.token
       }, 
     })
-      .then(res => console.log(res.data.message))
-      .catch(err => console.log(err));
+      .then(res => {
+        console.log(res.data.message);
+        this.setState({
+          tips: this.state.tips.filter(el => el._id !== id)
+        });
+      })
+      .catch(err => {
+        console.log(err);
+        err = new Error('Failed to delete the post.');
+        this.setState({ error: err });
+      });
+  };
 
-    this.setState({
-      tips: this.state.tips.filter(el => el._id !== id)
-    });
-  }
-
-  formatTipsForTable() {
+  formatTipsForTable = () => {
     return this.state.tips.map(tip => {
       return {
         date: moment(tip.date).format('DD/MM/YY ddd'),
@@ -55,7 +60,11 @@ export default class TipList extends Component {
         id: tip._id,
       };
     });
-  }
+  };
+
+  errorHandler = () => {
+    this.setState({ error: null });
+  };
 
   render() {
     let tipListData;
@@ -71,6 +80,7 @@ export default class TipList extends Component {
 
     return (
       <div className="container-fluid">
+        <ErrorModal error={this.state.error} onHandle={this.errorHandler} />
         <h1>Your Tips</h1>
         {tipListData}
       </div>

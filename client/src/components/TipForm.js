@@ -1,8 +1,10 @@
 import React, { Component, Fragment } from 'react';
-import { Modal, Button } from 'react-bootstrap';
 import axios from 'axios';
 import DatePicker from 'react-datepicker';
-import "react-datepicker/dist/react-datepicker.css";
+import 'react-datepicker/dist/react-datepicker.css';
+
+import Modal from '../components/Modal';
+import ErrorModal from '../components/ErrorModal';
 
 export default class TipForm extends Component {
   state = {
@@ -16,7 +18,13 @@ export default class TipForm extends Component {
     },
     newPosition: '',
     newShiftType: '',
-    errors: {
+    tipAdded: false,
+    positionOptions: [],
+    shiftTypeOptions: [],
+    showPositionModal: false,
+    showShiftTypeModal: false,
+    messageTimer: null,
+    formErrors: {
       amount: '',
       shiftLength: '',
       position: '',
@@ -24,12 +32,7 @@ export default class TipForm extends Component {
       newPosition: '',
       newShiftType: ''
     },
-    tipAdded: false,
-    positionOptions: [],
-    shiftTypeOptions: [],
-    showPositionModal: false,
-    showShiftTypeModal: false,
-    messageTimer: null
+    error: null
   };
 
   componentDidMount() {
@@ -71,10 +74,18 @@ export default class TipForm extends Component {
             tip.date = new Date(responseTip.date);
             this.setState({ tip }); 
           })
-          .catch(err => console.log(err));
+          .catch(err => {
+            console.log(err);
+            err = new Error('Failed to load tip.');
+            this.setState({ error: err });
+          });
         }
       })
-      .catch(err => console.log(err));
+      .catch(err => {
+        console.log(err);
+        err = new Error('Failed to user data.');
+        this.setState({ error: err });
+      });
   }
 
   componentWillUnmount() {
@@ -82,12 +93,12 @@ export default class TipForm extends Component {
   }
 
   onChangeInput = (e) => {
-    const errors = {...this.state.errors};
+    const errors = {...this.state.formErrors};
 
     if (Object.keys(errors).includes(e.target.id) || this.state.hasOwnProperty(e.target.id)) {
       if (errors[e.target.id] !== '') {
         errors[e.target.id] = '';
-        this.setState({ errors });
+        this.setState({ formErrors: errors });
       }
     }
 
@@ -117,14 +128,14 @@ export default class TipForm extends Component {
 
     tip[e.target.id] = e.target.value;
     this.setState({tip});
-  }
+  };
 
   
   onSubmitTipForm = (e) => {
     e.preventDefault();
 
     const tip = {...this.state.tip};
-    const errors = {...this.state.errors};
+    const errors = {...this.state.formErrors};
     for (const key in tip) {
       if (tip.hasOwnProperty(key)) {
         const value = tip[key];
@@ -160,7 +171,7 @@ export default class TipForm extends Component {
     }
     console.log(errors);
     if (!this.validateForm(errors)) {
-      return this.setState({errors});
+      return this.setState({ formErrors: errors });
     }
 
     console.log(tip);
@@ -175,10 +186,13 @@ export default class TipForm extends Component {
           console.log(res.data.message);
           this.props.history.replace('/alltips');
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+          console.log(err);
+          err = new Error('Can\'t update tip!');
+          this.setState({ error: err });
+        });
 
     } else {
-
       axios.post('http://localhost:5000/tips/create', tip, { 
         headers: {
           Authorization: 'Bearer ' + this.state.token
@@ -196,32 +210,41 @@ export default class TipForm extends Component {
           messageTimer: setTimeout(() => this.setState( {tipAdded: false} ), 3000)
         });
 
-        return axios.get('http://localhost:5000/auth/userlists', { 
+        axios.get('http://localhost:5000/auth/userlists', { 
           headers: {
             Authorization: 'Bearer ' + this.state.token
           }
+        })
+        .then(response => {
+          console.log(response.data.message);
+          
+          if (response.data.positions.length) {
+            tip.position = response.data.positions[0];
+            tip.shiftType = response.data.shiftTypes[0];
+            this.setState({
+              tip,
+              positionOptions: [...response.data.positions, 'New'],
+              shiftTypeOptions: [...response.data.shiftTypes, 'New'],
+            });
+          }
+        })
+        .catch(err => {
+          console.log(err);
+          err = new Error('Failed to user data.');
+          this.setState({ error: err });
         });
       })
-      .then(response => {
-        console.log(response.data.message);
-        
-        if (response.data.positions.length) {
-          tip.position = response.data.positions[0];
-          tip.shiftType = response.data.shiftTypes[0];
-          this.setState({
-            tip,
-            positionOptions: [...response.data.positions, 'New'],
-            shiftTypeOptions: [...response.data.shiftTypes, 'New'],
-          });
-        }
-      })
-      .catch(err => console.log(err));
+      .catch(err => {
+        console.log(err);
+        err = new Error('Failed to create new tip.');
+        this.setState({ error: err });
+      });
     }
-  }
+  };
 
   onSubmitNewInput = (inputType) => {
     let newInput = this.state['new' + inputType.replace(inputType.charAt(0), inputType.charAt(0).toUpperCase())];
-    const errors =  (({ newShiftType, newPosition }) => ({ newShiftType, newPosition }))(this.state.errors);
+    const errors =  (({ newShiftType, newPosition }) => ({ newShiftType, newPosition }))(this.state.formErrors);
     if (inputType === 'shiftType'){
       errors.newShiftType = 
       !(newInput.length > 0 && newInput.length <= 20)
@@ -236,66 +259,54 @@ export default class TipForm extends Component {
     
     console.log(errors);
     if (!this.validateForm(errors)) {
-      return this.setState({errors: Object.assign(this.state.errors, errors)});
+      return this.setState({ formErrors: Object.assign(this.state.formErrors, errors) });
     }
 
     const tip = {...this.state.tip};
     tip[inputType] = newInput;
 
-    axios.put('http://localhost:5000/auth/userlists', {
-      listName: inputType + 's',
-      newOption: newInput
-    },
-    { 
-      headers: {
-        Authorization: 'Bearer ' + this.state.token
-      }
-    })
-      .then(response => {
-        console.log(response.data.message);
-        this.setState({
-          tip,
-          [inputType + 'Options']: [newInput, ...this.state[inputType + 'Options']],
-          newPosition: '',
-          newShiftType: '',
-          showPositionModal: false,
-          showShiftTypeModal: false
-        });
-      })
-      .catch(err => console.log(err));
-  }
+    this.setState({
+      tip,
+      [inputType + 'Options']: [newInput, ...this.state[inputType + 'Options']],
+      newPosition: '',
+      newShiftType: '',
+      showPositionModal: false,
+      showShiftTypeModal: false
+    });
+  };
 
   validateForm = (errors) => {
     let valid = true;
-    Object.values(errors).forEach(
+    Object.values(errors).forEach(val => {
       // if we have an error string set valid to false
-      (val) => {
-        if (val.length > 0) valid = false;
-      }
-    );
+      if (val.length > 0) valid = false;
+    });
     return valid;
-  }
+  };
 
   onCloseInputModal = () => {
-    const errors = {...this.state.errors};
-
+    const errors = {...this.state.formErrors};
     errors.newPosition = '';
     errors.newShiftType = '';
     this.setState({ 
-      errors, 
+      formErrors: errors, 
       showShiftTypeModal: false,
       showPositionModal: false
     });
-  }
+  };
+
+  errorHandler = () => {
+    this.setState({ error: null });
+  };
 
   options = (optionsArr) => {
     return optionsArr.map(name => {
       return <option key={name} value={name}>{name}</option>
     });
-  }
+  };
 
   render() {
-    const errors = this.state.errors;
+    const errors = this.state.formErrors;
     let positionsAndShiftTypes;
     if (!this.state.positionOptions.length) {
       positionsAndShiftTypes = (
@@ -357,6 +368,7 @@ export default class TipForm extends Component {
 
     return (
       <Fragment>
+        <ErrorModal error={this.state.error} onHandle={this.errorHandler} />
         <form onSubmit={this.onSubmitTipForm}>
           <div className="form-group">
             <label>Date: </label>
@@ -403,55 +415,41 @@ export default class TipForm extends Component {
           </div>
         </form>
         {this.state.tipAdded === true && <span className="text-success" >Tip successfully added!</span>}
-        <Modal show={this.state.showPositionModal} onHide={this.onCloseInputModal} >
-          <Modal.Header closeButton>
-            <Modal.Title>Add a Position</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <label>Position:</label>
-            <input 
-              type="text" 
-              className="form-control" 
-              id="newPosition"
-              ref={(text) => { this.input = text; }} 
-              onChange={e => this.onChangeInput(e)}
-            />
-            {errors.newPosition.length > 0 && 
-              <span className='error text-danger'>{errors.newPosition}</span>}
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={this.onCloseInputModal}>
-              Close
-            </Button>
-            <Button variant="primary" onClick={() => this.onSubmitNewInput('position')}>
-              Save
-            </Button>
-          </Modal.Footer>
+        <Modal 
+          title="Add a Position"
+          acceptButtonText="Save"
+          show={this.state.showPositionModal} 
+          handleClose={this.onCloseInputModal} 
+          handleAccept={() => this.onSubmitNewInput('position')}
+        >
+          <label>Position:</label>
+          <input 
+            type="text" 
+            className="form-control" 
+            id="newPosition"
+            ref={(text) => { this.input = text; }} 
+            onChange={e => this.onChangeInput(e)}
+          />
+          {errors.newPosition.length > 0 && 
+            <span className='error text-danger'>{errors.newPosition}</span>}
         </Modal>
-        <Modal show={this.state.showShiftTypeModal} onHide={this.onCloseInputModal}>
-          <Modal.Header closeButton>
-            <Modal.Title>Add a Shift Type</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <label>Type of Shift:</label>
-            <input 
-              type="text" 
-              className="form-control" 
-              id="newShiftType"
-              ref={(text) => { this.input = text; }} 
-              onChange={e => this.onChangeInput(e)}
-            ></input>
-            {errors.newShiftType.length > 0 && 
-              <span className='error text-danger'>{errors.newShiftType}</span>}
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={this.onCloseInputModal}>
-              Close
-            </Button>
-            <Button variant="primary" onClick={() => this.onSubmitNewInput('shiftType')}>
-              Save
-            </Button>
-          </Modal.Footer>
+        <Modal 
+          acceptButtonText="Save"
+          title="Add a Shift Type"
+          show={this.state.showShiftTypeModal} 
+          handleClose={this.onCloseInputModal}
+          handleAccept={() => this.onSubmitNewInput('shiftType')}
+        >
+          <label>Type of Shift:</label>
+          <input 
+            type="text" 
+            className="form-control" 
+            id="newShiftType"
+            ref={(text) => { this.input = text; }} 
+            onChange={e => this.onChangeInput(e)}
+          ></input>
+          {errors.newShiftType.length > 0 && 
+            <span className='error text-danger'>{errors.newShiftType}</span>}
         </Modal>
       </Fragment>
 

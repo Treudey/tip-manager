@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import { Route, Switch, withRouter } from "react-router-dom";
+import { Route, Switch, withRouter } from 'react-router-dom';
 import axios from 'axios';
 
-import "bootstrap/dist/css/bootstrap.min.css";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import ErrorModal from './components/ErrorModal';
 import Navbar from './components/Navbar';
 import LoginPage from './pages/Login';
 import SignupPage from './pages/Signup';
@@ -18,7 +19,8 @@ class App extends Component {
   state = {
     isLoggedIn: false,
     userID: null,
-    token: null
+    token: null,
+    error: null
   };
 
   componentDidMount() {
@@ -42,13 +44,6 @@ class App extends Component {
     event.preventDefault();
     axios.post('http://localhost:5000/auth/login', loginData)
       .then(res => {
-        if (res.status === 422 ) {
-          throw new Error('Validation failed.');
-        }
-        if (res.status !== 200 && res.status !== 201) {
-          throw new Error('Could not be authenticated!');
-        }
-
         this.setState({
           isLoggedIn: true,
           userID: res.data.userID,
@@ -62,23 +57,36 @@ class App extends Component {
         localStorage.setItem('expiryDate', expiryDate.toISOString());
         this.setAutoLogout(millisecs);
       })
-      .catch(err => console.log(err));
+      .catch(err => {
+        console.log(err);
+        if (err.response.status === 422 ) {
+          err = new Error('Validation failed.');
+        } else if (err.response.status === 401) {
+          err = new Error('The email and password you entered did not match our records. Please double-check and try again');
+        }
+        this.setState({isLoggedIn: false, error: err});
+      });
   };
 
   signupHandler = (event, signupData) => {
     event.preventDefault();
     axios.post('http://localhost:5000/auth/signup', signupData)
       .then(res => {
-        if (res.status === 422 ) {
-          throw new Error('Validation failed. Make sure the email address isn\'t already being used');
-        }
-        if (res.status !== 200 && res.status !== 201) {
-          throw new Error('Could not create new user!');
-        }
-        
         this.props.history.replace('/');
       })
-      .catch(err => console.log(err));
+      .catch(err => {
+        console.log(err);
+        if (err.response.status === 422) {
+          err = new Error(
+            "Validation failed. Make sure the email address isn't used yet!"
+          );
+        } else if (err.status === 409) {
+          err = new Error('Make sure the two passwords match.');
+        } else {
+          err = new Error('Failed to create new user!');
+        }
+        this.setState({isLoggedIn: false, error: err});
+      });
   };
 
   logoutHandler = () => {
@@ -87,6 +95,10 @@ class App extends Component {
     localStorage.removeItem('expiryDate');
     localStorage.removeItem('userID');
     this.props.history.replace('/');
+  };
+
+  errorHandler = () => {
+    this.setState({ error: null });
   };
 
   setAutoLogout = millisecs => {
@@ -176,10 +188,8 @@ class App extends Component {
 
     return (
       <div className="container">
-        <Navbar 
-          onLogout={this.logoutHandler}
-          isLoggedIn={this.state.isLoggedIn}
-        />
+        <ErrorModal error={this.state.error} onHandle={this.errorHandler} />
+        <Navbar onLogout={this.logoutHandler} isLoggedIn={this.state.isLoggedIn} />
         {routes}
       </div>
     );

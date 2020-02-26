@@ -39,25 +39,6 @@ exports.getUserOptionsLists = (req, res, next) => {
     .catch(err => errorHandler(err, next));
 };
 
-exports.addToUserOptionsLists = (req, res, next) => {
-  const userID = req.userID;
-  const { listName, newOption } = req.body;
-
-  User.findById(userID)
-    .then(user => {
-      if (!user) {
-        advErrorHandler('Could not find user', 404);
-      }
-
-      user[listName].push(newOption);
-      return user.save();
-    })
-    .then(result => {
-      res.status(200).json({ message: 'Option successfully added to user\'s list' });
-    })
-    .catch(err => errorHandler(err, next));
-};
-
 exports.signup = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -89,6 +70,14 @@ exports.signup = (req, res, next) => {
 };
 
 exports.login = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const error =  new Error('Validation failed.');
+    error.statusCode = 422; 
+    error.data = errors.array();
+    throw error;
+  }
+
   const { email, password } = req.body;
   let loadedUser;
   User.findOne({ email })
