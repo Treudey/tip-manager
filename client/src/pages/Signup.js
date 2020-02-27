@@ -1,13 +1,17 @@
 import React, { Component } from 'react';
 
+import { validateForm } from '../utils/validators';
+
 export default class Signup extends Component {
 
-  constructor(props) {
-    super(props);
-
-    this.onChangeInput = this.onChangeInput.bind(this);
-
-    this.state = {
+  state = {
+    signupData: {
+      name: '',
+      email: '',
+      password: '',
+      confirmPassword: ''
+    },
+    formErrors: {
       name: '',
       email: '',
       password: '',
@@ -15,56 +19,124 @@ export default class Signup extends Component {
     }
   }
 
-  onChangeInput(e) {
-    this.setState({
-      [e.target.id]: e.target.value
-    });
-  }
+  onChangeInput = (e) => {
+    const errors = {...this.state.formErrors};
+
+    if (Object.keys(errors).includes(e.target.id)) {
+      if (errors[e.target.id].length) {
+        errors[e.target.id] = '';
+        this.setState({ formErrors: errors });
+      }
+    }
+    const signupData = {...this.state.signupData};
+    signupData[e.target.id] = e.target.value.trim();
+    this.setState({ signupData });
+  };
+
+  handleSubmit = (e) => {
+    e.preventDefault();
+
+    const signupData = {...this.state.signupData};
+    const errors = {...this.state.formErrors};
+
+    for (const key in signupData) {
+      if (signupData.hasOwnProperty(key)) {
+        const value = signupData[key];
+        switch (key) {
+          case 'email':
+            errors.email = 
+              !(/[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/.test(
+                value.toLowerCase()
+              ))
+                ? 'Please enter a valid email address'
+                : '';
+            break;
+          case 'name':
+            errors.name = 
+              !(value.length >= 2 && value.length <= 20)
+                ? 'Your user name must be between 2 and 20 characters long'
+                : '';
+            break;
+          case 'password':
+            errors.password = 
+              !(value.length >= 5 && value.length <= 20)
+                ? 'Your password must be between 5 and 20 characters long'
+                : '';
+            break;
+          case 'confirmPassword':
+            errors.confirmPassword = 
+              !(value === signupData.password)
+                ? 'Your password and confirmation password do not match '
+                : '';
+            break;
+          default:
+            break;
+        }
+      }
+    }
+
+    console.log(errors);
+    if (!validateForm(errors)) {
+      return this.setState({ formErrors: errors });
+    }
+
+    this.props.onSignup(e, signupData);
+  };
 
   render() {
+    const signupData = this.state.signupData;
+    const errors = this.state.formErrors;
     return (
       <div>
         <h3>Sign Up</h3>
-        <form onSubmit={ e => this.props.onSignup(e, this.state) }>
+        <form onSubmit={this.handleSubmit}>
           <div className="form-group">
             <label>Username: </label>
-            <input type="text"
-              required
+            <input 
+              type="text"
               id="name"
               className="form-control"
-              value={this.state.username}
-              onChange={e => this.onChangeInput(e)}
+              value={signupData.name}
+              onChange={this.onChangeInput}
             />
+            {errors.name.length > 0 && 
+              <span className='error text-danger'>{errors.name}</span>}
           </div>
           <div className="form-group">
             <label>Email: </label>
-            <input type="email"
-              required
+            <input 
+              type="email"
               id="email"
               className="form-control"
-              value={this.state.email}
-              onChange={e => this.onChangeInput(e)}
+              value={signupData.email}
+              onChange={this.onChangeInput}
             />
+            {errors.email.length > 0 && 
+              <span className='error text-danger'>{errors.email}</span>}
           </div>
           <div className="form-group">
             <label>Password: </label>
-            <input type="password"
-              required
+            <input 
+              type="password"
               id="password"
               className="form-control"
-              value={this.state.password}
-              onChange={e => this.onChangeInput(e)}
+              value={signupData.password}
+              onChange={this.onChangeInput}
             />
+            {errors.password.length > 0 && 
+              <span className='error text-danger'>{errors.password}</span>}
           </div>
           <div className="form-group">
             <label>Confirm Password: </label>
-            <input type="password"
-              required
+            <input 
+              type="password"
               id="confirmPassword"
               className="form-control"
-              value={this.state.confirmPassword}
-              onChange={e => this.onChangeInput(e)}
+              value={signupData.confirmPassword}
+              onChange={this.onChangeInput}
             />
+            {errors.confirmPassword.length > 0 && 
+              <span className='error text-danger'>{errors.confirmPassword}</span>}
           </div>
           <div className="form-group">
             <input type="submit" value="Register" className="btn btn-primary" />

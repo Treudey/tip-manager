@@ -5,6 +5,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 import Modal from '../components/Modal';
 import ErrorModal from '../components/ErrorModal';
+import { validateForm } from '../utils/validators';
 
 export default class TipForm extends Component {
   state = {
@@ -103,7 +104,7 @@ export default class TipForm extends Component {
     }
 
     if (this.state.hasOwnProperty(e.target.id)) {
-      this.setState({[e.target.id]: e.target.value});
+      return this.setState({ [e.target.id]: e.target.value.trim() });
     }
 
     const tip = {...this.state.tip};
@@ -111,22 +112,22 @@ export default class TipForm extends Component {
       tip.position = this.state.positionOptions[0];
       return this.setState(
         {tip, showPositionModal: true},
-        ()=>{
-          setTimeout(()=>{this.input && this.input.focus()}, 1);
+        () => {
+          setTimeout(() => {this.input && this.input.focus()}, 1);
         }
-        );
+      );
     }
     if (e.target.value === 'New' && e.target.id === 'shiftType') {
       tip.shiftType = this.state.shiftTypeOptions[0];
       return this.setState(
         {tip, showShiftTypeModal: true},
-        ()=>{
-          setTimeout(()=>{this.input && this.input.focus()}, 1);
+        () => {
+          setTimeout(() => {this.input && this.input.focus()}, 1);
         }
-        );
+      );
     }
 
-    tip[e.target.id] = e.target.value;
+    tip[e.target.id] = e.target.value.trim();
     this.setState({tip});
   };
 
@@ -154,15 +155,15 @@ export default class TipForm extends Component {
             break;
           case 'position': 
             errors.position = 
-            !(value.length > 0 && value.length <= 20)
-              ? 'The position must be a between 1 and 20 characters long'
-              : '';
+              !(value.length > 0 && value.length <= 20)
+                ? 'The position must be a between 1 and 20 characters long'
+                : '';
             break;
           case 'shiftType': 
             errors.shiftType = 
-            !(value.length > 0 && value.length <= 20)
-              ? 'The type of shift must be a between 1 and 20 characters long'
-              : '';
+              !(value.length > 0 && value.length <= 20)
+                ? 'The type of shift must be a between 1 and 20 characters long'
+                : '';
             break;
           default:
             break;
@@ -170,7 +171,7 @@ export default class TipForm extends Component {
       }
     }
     console.log(errors);
-    if (!this.validateForm(errors)) {
+    if (!validateForm(errors)) {
       return this.setState({ formErrors: errors });
     }
 
@@ -247,41 +248,32 @@ export default class TipForm extends Component {
     const errors =  (({ newShiftType, newPosition }) => ({ newShiftType, newPosition }))(this.state.formErrors);
     if (inputType === 'shiftType'){
       errors.newShiftType = 
-      !(newInput.length > 0 && newInput.length <= 20)
-        ? 'The type of shift must be a between 1 and 20 characters long'
-        : '';
+        !(newInput.length > 0 && newInput.length <= 20)
+          ? 'The type of shift must be a between 1 and 20 characters long'
+          : '';
     } else if (inputType === 'position') {
       errors.newPosition = 
-      !(newInput.length > 0 && newInput.length <= 20)
-        ? 'The position must be a between 1 and 20 characters long'
-        : '';
+        !(newInput.length > 0 && newInput.length <= 20)
+          ? 'The position must be a between 1 and 20 characters long'
+          : '';
     }
     
     console.log(errors);
-    if (!this.validateForm(errors)) {
+    if (!validateForm(errors)) {
       return this.setState({ formErrors: Object.assign(this.state.formErrors, errors) });
     }
 
     const tip = {...this.state.tip};
-    tip[inputType] = newInput;
+    tip[inputType] = newInput.trim();
 
     this.setState({
       tip,
-      [inputType + 'Options']: [newInput, ...this.state[inputType + 'Options']],
+      [inputType + 'Options']: [newInput.trim(), ...this.state[inputType + 'Options']],
       newPosition: '',
       newShiftType: '',
       showPositionModal: false,
       showShiftTypeModal: false
     });
-  };
-
-  validateForm = (errors) => {
-    let valid = true;
-    Object.values(errors).forEach(val => {
-      // if we have an error string set valid to false
-      if (val.length > 0) valid = false;
-    });
-    return valid;
   };
 
   onCloseInputModal = () => {
@@ -318,7 +310,7 @@ export default class TipForm extends Component {
             className="form-control"
             id="position"
             value={this.state.tip.position}
-            onChange={e => this.onChangeInput(e)}
+            onChange={this.onChangeInput}
           />
           {errors.position.length > 0 && 
             <span className='error text-danger'>{errors.position}</span>}
@@ -330,7 +322,7 @@ export default class TipForm extends Component {
             className="form-control"
             id="shiftType"
             value={this.state.tip.shiftType}
-            onChange={e => this.onChangeInput(e)}
+            onChange={this.onChangeInput}
           />
           {errors.shiftType.length > 0 && 
             <span className='error text-danger'>{errors.shiftType}</span>}
@@ -346,7 +338,7 @@ export default class TipForm extends Component {
             className="form-control"
             id="position"
             value={this.state.tip.position}
-            onChange={e => this.onChangeInput(e)}
+            onChange={this.onChangeInput}
           >
             {this.options(this.state.positionOptions)}
           </select>
@@ -357,7 +349,7 @@ export default class TipForm extends Component {
             className="form-control"
             id="shiftType"
             value={this.state.tip.shiftType}
-            onChange={e => this.onChangeInput(e)}
+            onChange={this.onChangeInput}
           >
             {this.options(this.state.shiftTypeOptions)}
           </select>
@@ -391,7 +383,7 @@ export default class TipForm extends Component {
               className="form-control"
               id="shiftLength"
               value={this.state.tip.shiftLength}
-              onChange={e => this.onChangeInput(e)}
+              onChange={this.onChangeInput}
             />
             {errors.shiftLength.length > 0 && 
               <span className='error text-danger'>{errors.shiftLength}</span>}
@@ -400,11 +392,10 @@ export default class TipForm extends Component {
             <label>Amount: </label>
             <input  
               type="number"
-              required
               className="form-control"
               id="amount"
               value={this.state.tip.amount}
-              onChange={e => this.onChangeInput(e)}
+              onChange={this.onChangeInput}
             />
             {errors.amount.length > 0 && 
               <span className='error text-danger'>{errors.amount}</span>}
@@ -428,7 +419,7 @@ export default class TipForm extends Component {
             className="form-control" 
             id="newPosition"
             ref={(text) => { this.input = text; }} 
-            onChange={e => this.onChangeInput(e)}
+            onChange={this.onChangeInput}
           />
           {errors.newPosition.length > 0 && 
             <span className='error text-danger'>{errors.newPosition}</span>}
@@ -446,7 +437,7 @@ export default class TipForm extends Component {
             className="form-control" 
             id="newShiftType"
             ref={(text) => { this.input = text; }} 
-            onChange={e => this.onChangeInput(e)}
+            onChange={this.onChangeInput}
           ></input>
           {errors.newShiftType.length > 0 && 
             <span className='error text-danger'>{errors.newShiftType}</span>}
