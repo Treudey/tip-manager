@@ -20,7 +20,8 @@ class App extends Component {
     isLoggedIn: false,
     userID: null,
     token: null,
-    error: null
+    error: null,
+    authLoading: false
   };
 
   componentDidMount() {
@@ -42,12 +43,14 @@ class App extends Component {
 
   loginHandler = (event, loginData) => {
     event.preventDefault();
+    this.setState({ authLoading: true });
     axios.post('http://localhost:5000/auth/login', loginData)
       .then(res => {
         this.setState({
           isLoggedIn: true,
           userID: res.data.userID,
-          token: res.data.token
+          token: res.data.token,
+          authLoading: false
         });
         console.log(res.data.message);
         localStorage.setItem('userID', res.data.userID);
@@ -64,14 +67,20 @@ class App extends Component {
         } else if (err.response.status === 401) {
           err = new Error('The email and password you entered did not match our records. Please double-check and try again');
         }
-        this.setState({isLoggedIn: false, error: err});
+        this.setState({
+          isLoggedIn: false, 
+          authLoading: false,
+          error: err
+        });
       });
   };
 
   signupHandler = (event, signupData) => {
     event.preventDefault();
+    this.setState({ authLoading: true });
     axios.post('http://localhost:5000/auth/signup', signupData)
       .then(res => {
+        this.setState({ authLoading: false });
         this.props.history.replace('/');
       })
       .catch(err => {
@@ -85,7 +94,11 @@ class App extends Component {
         } else {
           err = new Error('Failed to create new user!');
         }
-        this.setState({isLoggedIn: false, error: err});
+        this.setState({
+          isLoggedIn: false, 
+          authLoading: false,
+          error: err
+        });
       });
   };
 
@@ -118,6 +131,7 @@ class App extends Component {
               <LoginPage 
                 {...props}
                 onLogin={this.loginHandler}
+                loading={this.state.authLoading}
               />
             )} 
           />
@@ -127,6 +141,7 @@ class App extends Component {
               <SignupPage 
                 {...props}
                 onSignup={this.signupHandler}
+                loading={this.state.authLoading}
               />
             )}
           />

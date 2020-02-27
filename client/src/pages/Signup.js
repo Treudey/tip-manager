@@ -139,7 +139,12 @@ export default class Signup extends Component {
               <span className='error text-danger'>{errors.confirmPassword}</span>}
           </div>
           <div className="form-group">
-            <input type="submit" value="Register" className="btn btn-primary" />
+            <input 
+              type="submit" 
+              disabled={this.props.loading}
+              value={this.props.loading ? 'Loading...' : 'Register'} 
+              className="btn btn-primary" 
+            />
           </div>
         </form>
       </div>

@@ -33,7 +33,8 @@ export default class TipForm extends Component {
       newPosition: '',
       newShiftType: ''
     },
-    error: null
+    error: null,
+    formLoading: true
   };
 
   componentDidMount() {
@@ -73,7 +74,7 @@ export default class TipForm extends Component {
             tip.shiftType = responseTip.shiftType;
             tip.shiftLength = responseTip.shiftLength;
             tip.date = new Date(responseTip.date);
-            this.setState({ tip }); 
+            this.setState({ tip, formLoading: false }); 
           })
           .catch(err => {
             console.log(err);
@@ -81,10 +82,11 @@ export default class TipForm extends Component {
             this.setState({ error: err });
           });
         }
+        this.setState({ formLoading: false });
       })
       .catch(err => {
         console.log(err);
-        err = new Error('Failed to user data.');
+        err = new Error('Failed to load user data.');
         this.setState({ error: err });
       });
   }
@@ -134,7 +136,7 @@ export default class TipForm extends Component {
   
   onSubmitTipForm = (e) => {
     e.preventDefault();
-
+    this.setState({ formLoading: true });
     const tip = {...this.state.tip};
     const errors = {...this.state.formErrors};
     for (const key in tip) {
@@ -185,12 +187,13 @@ export default class TipForm extends Component {
       })
         .then(res => {
           console.log(res.data.message);
+          this.setState({ formLoading: false });
           this.props.history.replace('/alltips');
         })
         .catch(err => {
           console.log(err);
           err = new Error('Can\'t update tip!');
-          this.setState({ error: err });
+          this.setState({ error: err, formLoading: false });
         });
 
     } else {
@@ -226,19 +229,20 @@ export default class TipForm extends Component {
               tip,
               positionOptions: [...response.data.positions, 'New'],
               shiftTypeOptions: [...response.data.shiftTypes, 'New'],
+              formLoading: false
             });
           }
         })
         .catch(err => {
           console.log(err);
-          err = new Error('Failed to user data.');
+          err = new Error('Failed to load user data.');
           this.setState({ error: err });
         });
       })
       .catch(err => {
         console.log(err);
         err = new Error('Failed to create new tip.');
-        this.setState({ error: err });
+        this.setState({ error: err, formLoading: false });
       });
     }
   };
@@ -402,7 +406,12 @@ export default class TipForm extends Component {
           </div>
           
           <div className="form-group">
-            <input type="submit" value={this.props.editing ? 'Update Tip' : 'Add Tip'} className="btn btn-primary" />
+            <input 
+              type="submit" 
+              disabled={this.state.formLoading}
+              value={this.state.formLoading ? 'Loading' : (this.props.editing ? 'Update Tip' : 'Add Tip')} 
+              className="btn btn-primary" 
+            />
           </div>
         </form>
         {this.state.tipAdded === true && <span className="text-success" >Tip successfully added!</span>}

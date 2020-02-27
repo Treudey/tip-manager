@@ -4,6 +4,7 @@ import moment from 'moment';
 
 import Table from '../components/Table';
 import ErrorModal from '../components/ErrorModal';
+import Loader from '../components/Loader';
 
 const getSafe = (fn, defaultVal) => {
   try {
@@ -26,7 +27,8 @@ export default class Dashboard extends Component {
     tipDataByMonth: {},
     tipDataByDay: {},
     tipDataCurrYear: {},
-    error: null
+    error: null,
+    dataLoading: true
   };
   
 
@@ -97,7 +99,8 @@ export default class Dashboard extends Component {
           tipDataByShiftType,
           tipDataByMonth,
           tipDataByDay,
-          tipDataCurrYear
+          tipDataCurrYear,
+          dataLoading: false
         });
       })
       .catch(err => {
@@ -138,19 +141,19 @@ export default class Dashboard extends Component {
 
   render() {
     console.log(this.state);
-    let tipListData;
+    let loadedHtml;
     if (!this.state.tipData.tipsArr) {
-      tipListData = (<p>You have no tips currently!</p>);
+      loadedHtml = (<p>You have no tips currently!</p>);
     } else {
       const headers = ['Tips', 'Hours', '$/Hour'];
-      tipListData = (
-        <Fragment>
+      loadedHtml = (
+        <div className="row">
           <h3>Tip Data By</h3>
           <Table headers={['Position', ...headers]} rowData={this.state.tipDataByPosition} />
           <Table headers={['Type of Shift', ...headers]} rowData={this.state.tipDataByShiftType} />
           <Table headers={['Month', ...headers]} rowData={this.state.tipDataByMonth} />
           <Table headers={['Weekday', ...headers]} rowData={this.state.tipDataByDay} />
-        </Fragment>
+        </div>
       );
     }
     
@@ -171,9 +174,11 @@ export default class Dashboard extends Component {
             </Fragment>
           </div>
         </div>
-        <div className="row">
-          {tipListData}
-        </div>
+        {this.state.dataLoading ? (
+          <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+            <Loader />
+          </div>
+        ) : loadedHtml}
       </div>
     );
   }

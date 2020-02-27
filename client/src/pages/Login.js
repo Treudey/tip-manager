@@ -93,7 +93,12 @@ export default class Login extends Component {
               <span className='error text-danger'>{errors.password}</span>}
           </div>
           <div className="form-group">
-            <input type="submit" value="Log In" className="btn btn-primary" />
+            <input 
+              type="submit" 
+              disabled={this.props.loading} 
+              value={this.props.loading ? 'Loading...' : 'Log In'} 
+              className="btn btn-primary" 
+            />
           </div>
         </form>
       </div>

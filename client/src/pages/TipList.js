@@ -4,13 +4,15 @@ import moment from 'moment';
 
 import Table from '../components/Table';
 import ErrorModal from '../components/ErrorModal';
+import Loader from '../components/Loader';
 
 export default class TipList extends Component {
 
   state = { 
     token: this.props.token,
     tips: [],
-    error: null
+    error: null,
+    tipsLoading: true
   };
 
   componentDidMount() {
@@ -21,7 +23,10 @@ export default class TipList extends Component {
     })
       .then(response => {
         console.log(response.data.message);
-        this.setState({ tips: response.data.tips });
+        this.setState({ 
+          tips: response.data.tips,
+          tipsLoading: false
+        });
       })
       .catch(err => {
         console.log(err);
@@ -31,6 +36,7 @@ export default class TipList extends Component {
   }
 
   deleteTip = (id) => {
+    this.setState({ tipsLoading: true })
     axios.delete('http://localhost:5000/tips/' + id, {
       headers: {
         Authorization: 'Bearer ' + this.state.token
@@ -39,13 +45,14 @@ export default class TipList extends Component {
       .then(res => {
         console.log(res.data.message);
         this.setState({
-          tips: this.state.tips.filter(el => el._id !== id)
+          tips: this.state.tips.filter(el => el._id !== id),
+          tipsLoading: false
         });
       })
       .catch(err => {
         console.log(err);
         err = new Error('Failed to delete the post.');
-        this.setState({ error: err });
+        this.setState({ error: err, tipsLoading: false });
       });
   };
 
@@ -67,13 +74,17 @@ export default class TipList extends Component {
   };
 
   render() {
-    let tipListData;
+    let loadedHtml;
     if (!this.state.tips.length) {
-      tipListData = (<h2>You have no tips currently!</h2>);
+      loadedHtml = (<h2>You have no tips currently!</h2>);
     } else {
-      tipListData = (
+      loadedHtml = (
         <Fragment>
-          <Table headers={['Date', 'Position', 'Type of Shift', 'Amount', 'Shift Length', 'Actions']} delete={this.deleteTip} rowData={this.formatTipsForTable()} />
+          <Table 
+            headers={['Date', 'Position', 'Type of Shift', 'Amount', 'Shift Length', 'Actions']} 
+            delete={this.deleteTip} 
+            rowData={this.formatTipsForTable()} 
+          />
         </Fragment>
       );
     }
@@ -82,7 +93,11 @@ export default class TipList extends Component {
       <div className="container-fluid">
         <ErrorModal error={this.state.error} onHandle={this.errorHandler} />
         <h1>Your Tips</h1>
-        {tipListData}
+        {this.state.tipsLoading ? (
+          <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+            <Loader />
+          </div>
+        ) : loadedHtml}
       </div>
     );
   }
