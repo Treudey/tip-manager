@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { Route, Switch, withRouter } from 'react-router-dom';
 import axios from 'axios';
 
-import 'bootstrap/dist/css/bootstrap.min.css';
 import ErrorModal from './components/ErrorModal';
 import Navbar from './components/Navbar';
 import LoginPage from './pages/Login';
@@ -13,6 +12,8 @@ import AddTip from './pages/AddTip';
 import EditTip from './pages/EditTip';
 import TipList from './pages/TipList';
 import ChartsPage from './pages/ChartsPage';
+import NetworkDetector from './hoc/NetworkDetector';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 class App extends Component {
 
@@ -211,4 +212,4 @@ class App extends Component {
   }
 }
 
-export default withRouter(App);
+export default NetworkDetector(withRouter(App));

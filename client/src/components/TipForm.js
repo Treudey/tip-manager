@@ -409,7 +409,7 @@ export default class TipForm extends Component {
             <input 
               type="submit" 
               disabled={this.state.formLoading}
-              value={this.state.formLoading ? 'Loading' : (this.props.editing ? 'Update Tip' : 'Add Tip')} 
+              value={this.state.formLoading ? 'Loading...' : (this.props.editing ? 'Update Tip' : 'Add Tip')} 
               className="btn btn-primary" 
             />
           </div>
