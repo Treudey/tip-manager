@@ -2,7 +2,7 @@ import React, { Fragment } from 'react';
 
 import Modal from '../components/Modal';
 
-const ErrorModal = props => (
+const ErrorModal = (props) => (
   <Fragment>
     {props.error && (
       <Modal 
@@ -16,7 +16,6 @@ const ErrorModal = props => (
       </Modal>
     )}
   </Fragment>
-  
 );
 
 export default ErrorModal;

@@ -5,20 +5,14 @@ import moment from 'moment';
 import Table from '../components/Table';
 import ErrorModal from '../components/ErrorModal';
 import Loader from '../components/Loader';
+import getSafe from '../utils/getSafe';
 
-const getSafe = (fn, defaultVal) => {
-  try {
-    return fn();
-  } catch (e) {
-    return defaultVal;
-  }
-}
+
 export default class Dashboard extends Component {
 
   state = { 
     token: this.props.token,
     name: '',
-    email: '',
     shiftTypes: [],
     positions: [],
     tipData: {},
@@ -33,7 +27,7 @@ export default class Dashboard extends Component {
   
 
   componentDidMount() {
-    axios.get('http://localhost:5000/auth/userdata', { 
+    axios.get('http://localhost:5000/auth/userdatatips', { 
       headers: {
         Authorization: 'Bearer ' + this.state.token
       }
@@ -42,13 +36,11 @@ export default class Dashboard extends Component {
         console.log(response.data.message);
         const user = response.data.user;
         this.setState({
-          name: user.name,
-          email: user.email,
-          password: user.password,
+          name: user.name
         });
         
         if (!user.tips.length) {
-          return;
+          return this.setState({ dataLoading: false });
         }
 
         const tipDataByPosition = {};

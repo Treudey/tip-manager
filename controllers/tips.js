@@ -42,10 +42,7 @@ exports.getTip = (req, res, next) => {
 exports.createTip = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    const error = new Error('Validation failed.') 
-    error.statsCode = 422;
-    error.data =  errors.array() 
-    throw error;
+    advErrorHandler('Validation failed.', 422);
   }
 
   const userID = req.userID;
@@ -83,10 +80,7 @@ exports.createTip = (req, res, next) => {
 exports.updateTip = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    const error = new Error('Validation failed.') 
-    error.statsCode = 422;
-    error.data =  errors.array() 
-    throw error;
+    advErrorHandler('Validation failed.', 422);
   }
 
   const tipID = req.params.tipID;

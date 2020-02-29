@@ -28,7 +28,7 @@ export default class ChartsPage extends Component {
   };
   
   componentDidMount() {
-    axios.get('http://localhost:5000/auth/userdata', { 
+    axios.get('http://localhost:5000/auth/userdatatips', { 
       headers: {
         Authorization: 'Bearer ' + this.state.token
       }
@@ -36,6 +36,11 @@ export default class ChartsPage extends Component {
       .then(response => {
         console.log(response.data.message);
         const user = response.data.user;
+
+        if (!user.tips.length) {
+          return this.setState({ dataLoading: false });
+        }
+
         const tipData = { tipsArr: user.tips };
         const tipDataByPosition = {};
         const tipDataByShiftType = {};

@@ -3,10 +3,11 @@ import { Route, Switch, withRouter } from 'react-router-dom';
 import axios from 'axios';
 
 import ErrorModal from './components/ErrorModal';
-import Navbar from './components/Navbar';
+import Navigation from './components/Navigation';
 import LoginPage from './pages/Login';
 import SignupPage from './pages/Signup';
 import Dashboard from './pages/Dashboard';
+import AccountSettings from './pages/Account';
 import NoMatch from './pages/NoMatch';
 import AddTip from './pages/AddTip';
 import EditTip from './pages/EditTip';
@@ -14,6 +15,7 @@ import TipList from './pages/TipList';
 import ChartsPage from './pages/ChartsPage';
 import NetworkDetector from './hoc/NetworkDetector';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { Container } from 'react-bootstrap';
 
 class App extends Component {
 
@@ -90,7 +92,7 @@ class App extends Component {
           err = new Error(
             "Validation failed. Make sure the email address isn't used yet!"
           );
-        } else if (err.status === 409) {
+        } else if (err.response.status === 409) {
           err = new Error('Make sure the two passwords match.');
         } else {
           err = new Error('Failed to create new user!');
@@ -180,6 +182,15 @@ class App extends Component {
             )} 
           />
           <Route 
+            exact path="/account" 
+            render={props => (
+              <AccountSettings 
+                {...props}
+                token={this.state.token}
+              />
+            )} 
+          />
+          <Route 
             exact path="/add" 
             render={props => (
               <AddTip 
@@ -203,11 +214,11 @@ class App extends Component {
     }
 
     return (
-      <div className="container">
+      <Container>
         <ErrorModal error={this.state.error} onHandle={this.errorHandler} />
-        <Navbar onLogout={this.logoutHandler} isLoggedIn={this.state.isLoggedIn} />
+        <Navigation onLogout={this.logoutHandler} isLoggedIn={this.state.isLoggedIn} />
         {routes}
-      </div>
+      </Container>
     );
   }
 }

@@ -8,6 +8,9 @@ const isAuth = require('../middleware/isAuth')
 // GET /auth/userdata
 router.get('/userdata', isAuth, authController.getUserData);
 
+// GET /auth/userdatatips
+router.get('/userdatatips', isAuth, authController.getUserDataWithTips);
+
 // GET /auth/userlists
 router.get('/userlists', isAuth, authController.getUserOptionsLists);
 
@@ -17,7 +20,6 @@ router.post(
   [
     body('email')
       .isEmail()
-      .withMessage('Please enter a valid email address')
       .custom(value => {
         return User.findOne({ email: value }).then(userDoc => {
           if (userDoc) {
@@ -32,14 +34,23 @@ router.post(
   authController.signup
 );
 
+// PUT /auth/update
+router.put(
+  '/update', 
+  isAuth,
+  [
+    body('email').isEmail().normalizeEmail(),
+    body('name').trim().isLength({ min: 2, max: 20 }),
+    body('isPasswordChange').isBoolean()
+  ], 
+  authController.update
+);
+
 // POST /auth/login
 router.post(
   '/login', 
   [
-    body('email')
-      .isEmail()
-      .withMessage('Please enter a valid email address')
-      .normalizeEmail(),
+    body('email').isEmail().normalizeEmail(),
     body('password').trim().isLength({ min: 5, max: 20 })
   ],
   authController.login

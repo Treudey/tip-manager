@@ -19,11 +19,11 @@ export default class TipForm extends Component {
     },
     newPosition: '',
     newShiftType: '',
-    tipAdded: false,
     positionOptions: [],
     shiftTypeOptions: [],
     showPositionModal: false,
     showShiftTypeModal: false,
+    tipAdded: false,
     messageTimer: null,
     formErrors: {
       amount: '',
@@ -211,32 +211,8 @@ export default class TipForm extends Component {
         this.setState({
           tip,
           tipAdded: true,
-          messageTimer: setTimeout(() => this.setState( {tipAdded: false} ), 3000)
-        });
-
-        axios.get('http://localhost:5000/auth/userlists', { 
-          headers: {
-            Authorization: 'Bearer ' + this.state.token
-          }
-        })
-        .then(response => {
-          console.log(response.data.message);
-          
-          if (response.data.positions.length) {
-            tip.position = response.data.positions[0];
-            tip.shiftType = response.data.shiftTypes[0];
-            this.setState({
-              tip,
-              positionOptions: [...response.data.positions, 'New'],
-              shiftTypeOptions: [...response.data.shiftTypes, 'New'],
-              formLoading: false
-            });
-          }
-        })
-        .catch(err => {
-          console.log(err);
-          err = new Error('Failed to load user data.');
-          this.setState({ error: err });
+          formLoading: false,
+          messageTimer: setTimeout(() => this.setState({ tipAdded: false }), 3000)
         });
       })
       .catch(err => {
@@ -414,7 +390,8 @@ export default class TipForm extends Component {
             />
           </div>
         </form>
-        {this.state.tipAdded === true && <span className="text-success" >Tip successfully added!</span>}
+        {this.state.tipAdded && 
+          <span className="text-success" >Tip successfully added!</span>}
         <Modal 
           title="Add a Position"
           acceptButtonText="Save"

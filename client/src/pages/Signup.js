@@ -22,12 +22,11 @@ export default class Signup extends Component {
   onChangeInput = (e) => {
     const errors = {...this.state.formErrors};
 
-    if (Object.keys(errors).includes(e.target.id)) {
-      if (errors[e.target.id].length) {
-        errors[e.target.id] = '';
-        this.setState({ formErrors: errors });
-      }
+    if (errors[e.target.id].length) {
+      errors[e.target.id] = '';
+      this.setState({ formErrors: errors });
     }
+    
     const signupData = {...this.state.signupData};
     signupData[e.target.id] = e.target.value.trim();
     this.setState({ signupData });

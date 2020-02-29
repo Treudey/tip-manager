@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from "react-router-dom";
 
-const Row = props => {
+const Row = (props) => {
   const tableData = [];
   for (const key in props.rowData) {
     if (props.rowData.hasOwnProperty(key) && key !== 'id') {

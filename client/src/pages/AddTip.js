@@ -1,9 +1,7 @@
 import React from 'react';
 import TipForm from "../components/TipForm";
 
-const AddTip = (props) => {
-    
-  return (
+const AddTip = (props) => (
   <div className='container-fluid'>
     <h3>Add a Tip</h3>
     <TipForm 
@@ -12,7 +10,6 @@ const AddTip = (props) => {
       tipID={null}
     />
   </div> 
-  );
-}
+);
 
 export default AddTip;
