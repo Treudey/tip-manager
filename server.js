@@ -3,6 +3,7 @@ const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const helmet = require('helmet');
 
 const tipsRoutes = require('./routes/tips');
 const authRoutes = require('./routes/auth');
@@ -14,7 +15,7 @@ require('dotenv').config();
 
 app.use(cors());
 app.use(express.json());
-
+app.use(helmet());
 app.use((error, req, res, next) => {
   console.log(error);
   const status = error.statusCode;
