@@ -1,3 +1,5 @@
+const path = require('path');
+
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
@@ -22,7 +24,17 @@ app.use((error, req, res, next) => {
 });
 
 app.use('/tips', tipsRoutes);
-app.use('/auth', authRoutes);
+app.use('/auth', authRoutes); 
+
+// Serve static assets if in production
+if (process.env.NODE_ENV === 'production') {
+  // Set static folder
+  app.use(express.static('client/build'));
+
+  app.get('*', (req, res, next) => {
+    res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
+  });
+}
 
 const uri = process.env.ATLAS_URI;
 mongoose.connect(uri, { 

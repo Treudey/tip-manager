@@ -289,7 +289,7 @@ exports.updatePassword = (req, res, next) => {
     })
     .then(hashedPwd => {
       loadedUser.password = hashedPwd;
-      loadedUser.resetToken = null;
+      loadedUser.resetToken = undefined;
       loadedUser.resetTokenExpiry = undefined;
       return loadedUser.save();
     })
