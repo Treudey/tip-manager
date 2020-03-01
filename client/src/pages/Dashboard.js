@@ -132,7 +132,6 @@ export default class Dashboard extends Component {
   };
 
   render() {
-    console.log(this.state);
     let loadedHtml;
     if (!this.state.tipData.tipsArr) {
       loadedHtml = (<p>You have no tips currently!</p>);

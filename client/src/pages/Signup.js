@@ -74,7 +74,6 @@ export default class Signup extends Component {
       }
     }
 
-    console.log(errors);
     if (!validateForm(errors)) {
       return this.setState({ formErrors: errors });
     }

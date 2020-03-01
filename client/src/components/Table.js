@@ -38,7 +38,6 @@ const Table = props => {
     }
   }
 
-  console.log(rowList);
   return (
     <table className="table">
       <thead className="thead-light">

@@ -59,7 +59,6 @@ export default class PasswordReset extends Component {
       }
     }
 
-    console.log(errors);
     if (!validateForm(errors)) {
       return this.setState({ errors });
     }

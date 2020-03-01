@@ -23,8 +23,6 @@ exports.getTip = (req, res, next) => {
   const userID = req.userID;
   const tipID = req.params.tipID;
 
-  console.log(tipID);
-  console.log(userID);
   Tip.findById(tipID)
     .then(tip => {
       if (!tip) {

@@ -172,12 +172,11 @@ export default class TipForm extends Component {
         }
       }
     }
-    console.log(errors);
+   
     if (!validateForm(errors)) {
       return this.setState({ formErrors: errors });
     }
 
-    console.log(tip);
 
     if (this.props.editing) {
       axios.put('http://localhost:5000/tips/' + this.props.tipID, tip, { 
@@ -237,8 +236,7 @@ export default class TipForm extends Component {
           ? 'The position must be a between 1 and 20 characters long'
           : '';
     }
-    
-    console.log(errors);
+  
     if (!validateForm(errors)) {
       return this.setState({ formErrors: Object.assign(this.state.formErrors, errors) });
     }

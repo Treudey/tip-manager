@@ -84,7 +84,6 @@ export default class ChartsPage extends Component {
           createTipArrayAndPush(tipDataByPosition[tip.position], month, tip);
         }
 
-        console.log(tipDataByPosition)
         this.generateTipTotals(tipData);
         this.generateTipTotals(tipDataByPosition);
         this.generateTipTotals(tipDataByShiftType);
@@ -101,7 +100,7 @@ export default class ChartsPage extends Component {
           tipDataByMonth,
           tipDataByDay,
           chartsLoading: false
-        }, () => console.log(this.state));
+        });
       })
       .catch(err => {
         console.log(err);

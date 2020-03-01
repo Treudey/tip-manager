@@ -134,7 +134,6 @@ export default class AccountDetails extends Component {
       }
     }
 
-    console.log(formData);
     if (!validateForm(errors)) {
       return this.setState({ formErrors: errors, formLoading: false });
     }

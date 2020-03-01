@@ -118,8 +118,6 @@ exports.update = (req, res, next) => {
 
   User.findOne({ email })
     .then(userDoc => {
-      //console.log(userDoc._id);
-      console.log(userID)
       if (userDoc && userDoc._id.toString() !== userID) {
         advErrorHandler('An account with that email address already exists!', 409);
       }
@@ -152,7 +150,6 @@ exports.update = (req, res, next) => {
             return bcrypt.hash(newPassword, 12);
           })
           .then(hashedPwd => {
-            console.log(hashedPwd);
             loadedUser.password = hashedPwd;
             loadedUser.name = name;
             loadedUser.email = email;
@@ -182,7 +179,6 @@ exports.update = (req, res, next) => {
 
 exports.login = (req, res, next) => {
   const errors = validationResult(req);
-  console.log(errors);
   if (!errors.isEmpty()) {
     advErrorHandler('Validation failed.', 422);
   }
