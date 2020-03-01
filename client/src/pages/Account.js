@@ -38,7 +38,7 @@ export default class AccountDetails extends Component {
   }
 
   componentDidMount() {
-    axios.get('http://localhost:5000/auth/userdata', { 
+    axios.get('/auth/userdata', { 
       headers: {
         Authorization: 'Bearer ' + this.state.token
       }
@@ -138,7 +138,7 @@ export default class AccountDetails extends Component {
       return this.setState({ formErrors: errors, formLoading: false });
     }
 
-    axios.put('http://localhost:5000/auth/update', formData, { 
+    axios.put('/auth/update', formData, { 
         headers: {
           Authorization: 'Bearer ' + this.state.token
         }

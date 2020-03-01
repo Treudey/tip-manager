@@ -100,7 +100,7 @@ exports.signup = (req, res, next) => {
             You successfully signed up and your account was created. 
             You can start adding your tips right away. Just follow the link:
           </p>
-          <a href="http://tip-manager.herokuapp.com">Tip Manager</a>
+          <a href="https://tip-manager.herokuapp.com">Tip Manager</a>
         `
       })
     })
@@ -248,7 +248,7 @@ exports.resetPassword = (req, res, next) => {
             <h1>You've Requested a Password Reset</h1>
             <p>
               Click this 
-                <a href="http://tip-manager.herokuapp.com/reset?token=${token}">link</a> 
+                <a href="https://tip-manager.herokuapp.com/reset?token=${token}">link</a> 
               to set a new password. It will only be valid for one hour.
             </p>
           `

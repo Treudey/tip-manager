@@ -38,7 +38,7 @@ export default class TipForm extends Component {
   };
 
   componentDidMount() {
-    axios.get('http://localhost:5000/auth/userlists', { 
+    axios.get('/auth/userlists', { 
       headers: {
         Authorization: 'Bearer ' + this.state.token
       }
@@ -59,7 +59,7 @@ export default class TipForm extends Component {
 
         if (this.props.editing) {
           axios.get(
-            'http://localhost:5000/tips/' + this.props.tipID,
+            '/tips/' + this.props.tipID,
             { 
               headers: {
                 Authorization: 'Bearer ' + this.state.token
@@ -179,7 +179,7 @@ export default class TipForm extends Component {
 
 
     if (this.props.editing) {
-      axios.put('http://localhost:5000/tips/' + this.props.tipID, tip, { 
+      axios.put('/tips/' + this.props.tipID, tip, { 
         headers: {
           Authorization: 'Bearer ' + this.state.token
         }
@@ -196,7 +196,7 @@ export default class TipForm extends Component {
         });
 
     } else {
-      axios.post('http://localhost:5000/tips/create', tip, { 
+      axios.post('/tips/create', tip, { 
         headers: {
           Authorization: 'Bearer ' + this.state.token
         }

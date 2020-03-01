@@ -50,7 +50,7 @@ class App extends Component {
 
   loginHandler = (loginData) => {
     this.setState({ authLoading: true });
-    axios.post('http://localhost:5000/auth/login', loginData)
+    axios.post('/auth/login', loginData)
       .then(res => {
         this.setState({
           isLoggedIn: true,
@@ -86,7 +86,7 @@ class App extends Component {
   passwordResetHandler = (email) => {
     this.setState({ authLoading: true });
 
-    axios.post('http://localhost:3000/auth/reset', { email })
+    axios.post('/auth/reset', { email })
       .then(res => {
         this.setState({ 
           authLoading: false,
@@ -119,7 +119,7 @@ class App extends Component {
   updatePasswordHandler = (passwordData) => {
     this.setState({ authLoading: true });
 
-    axios.put('http://localhost:3000/auth/new-password', passwordData)
+    axios.put('/auth/new-password', passwordData)
       .then(res => {
         this.setState({ 
           authLoading: false,
@@ -152,7 +152,7 @@ class App extends Component {
   signupHandler = (event, signupData) => {
     event.preventDefault();
     this.setState({ authLoading: true });
-    axios.post('http://localhost:5000/auth/signup', signupData)
+    axios.post('/auth/signup', signupData)
       .then(res => {
         this.setState({ authLoading: false });
         this.props.history.replace('/');

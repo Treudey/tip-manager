@@ -28,7 +28,7 @@ export default class ChartsPage extends Component {
   };
   
   componentDidMount() {
-    axios.get('http://localhost:5000/auth/userdatatips', { 
+    axios.get('/auth/userdatatips', { 
       headers: {
         Authorization: 'Bearer ' + this.state.token
       }

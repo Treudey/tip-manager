@@ -16,7 +16,7 @@ export default class TipList extends Component {
   };
 
   componentDidMount() {
-    axios.get('http://localhost:5000/tips/', { 
+    axios.get('/tips/', { 
       headers: {
         Authorization: 'Bearer ' + this.state.token
       }
@@ -37,7 +37,7 @@ export default class TipList extends Component {
 
   deleteTip = (id) => {
     this.setState({ tipsLoading: true })
-    axios.delete('http://localhost:5000/tips/' + id, {
+    axios.delete('/tips/' + id, {
       headers: {
         Authorization: 'Bearer ' + this.state.token
       }, 
