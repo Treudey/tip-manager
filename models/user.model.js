@@ -15,6 +15,8 @@ const userSchema = new Schema({
     type: String,
     required: true
   },
+  resetToken: String,
+  resetTokenExpiry: Date,
   tips: [{
     type: Schema.Types.ObjectId, 
     ref: 'Tip'

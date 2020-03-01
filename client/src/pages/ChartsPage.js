@@ -38,9 +38,9 @@ export default class ChartsPage extends Component {
         const user = response.data.user;
 
         if (!user.tips.length) {
-          return this.setState({ dataLoading: false });
+          return this.setState({ chartsLoading: false });
         }
-
+        
         const tipData = { tipsArr: user.tips };
         const tipDataByPosition = {};
         const tipDataByShiftType = {};

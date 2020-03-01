@@ -6,7 +6,7 @@ import Loader from '../components/Loader';
 import { validateForm } from '../utils/validators';
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
 
-export default class AccountSettings extends Component {
+export default class AccountDetails extends Component {
   state = {
     token: this.props.token,
     userData: {
@@ -134,7 +134,7 @@ export default class AccountSettings extends Component {
       }
     }
 
-    console.log(errors);
+    console.log(formData);
     if (!validateForm(errors)) {
       return this.setState({ formErrors: errors, formLoading: false });
     }
@@ -164,7 +164,7 @@ export default class AccountSettings extends Component {
           } else if (err.response.status === 401) {
             err = new Error("You did not enter the correct old password. Please try again");
           } else if (err.response.status === 409) {
-            err = new Error('Your new password and confirmation password do not match.');
+            err = new Error('An account with that email address already exists!');
           } else {
             err = new Error('Can\'t update user data!');
           }
@@ -228,7 +228,7 @@ export default class AccountSettings extends Component {
       <Container fluid>
         <ErrorModal error={this.state.error} onHandle={this.errorHandler} />
         <Row>
-          <h1>Account Settings</h1>
+          <h1>Account Details</h1>
         </Row>
         {this.state.dataLoading ? (
           <div style={{ textAlign: 'center', marginTop: '2rem' }}>

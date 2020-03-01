@@ -20,13 +20,6 @@ router.post(
   [
     body('email')
       .isEmail()
-      .custom(value => {
-        return User.findOne({ email: value }).then(userDoc => {
-          if (userDoc) {
-            return Promise.reject('Email address already exists!');
-          }
-        })
-      })
       .normalizeEmail(),
     body('password').trim().isLength({ min: 5, max: 20 }),
     body('name').trim().isLength({ min: 2, max: 20 })
@@ -54,6 +47,23 @@ router.post(
     body('password').trim().isLength({ min: 5, max: 20 })
   ],
   authController.login
+);
+
+// POST /auth/reset
+router.post(
+  '/reset', 
+  [body('email').isEmail().normalizeEmail()],
+  authController.resetPassword
+);
+
+// PUT /auth/reset
+router.put(
+  '/new-password', 
+  [
+    body('password').trim().isLength({ min: 5, max: 20 }),
+    body('token').notEmpty()
+  ],
+  authController.updatePassword
 );
 
 module.exports = router;

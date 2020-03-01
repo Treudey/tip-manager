@@ -3,16 +3,18 @@ import { Route, Switch, withRouter } from 'react-router-dom';
 import axios from 'axios';
 
 import ErrorModal from './components/ErrorModal';
+import Modal from './components/Modal';
 import Navigation from './components/Navigation';
 import LoginPage from './pages/Login';
 import SignupPage from './pages/Signup';
 import Dashboard from './pages/Dashboard';
-import AccountSettings from './pages/Account';
+import AccountDetails from './pages/Account';
 import NoMatch from './pages/NoMatch';
 import AddTip from './pages/AddTip';
 import EditTip from './pages/EditTip';
 import TipList from './pages/TipList';
 import ChartsPage from './pages/ChartsPage';
+import PasswordReset from './pages/PasswordReset';
 import NetworkDetector from './hoc/NetworkDetector';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Container } from 'react-bootstrap';
@@ -24,7 +26,9 @@ class App extends Component {
     userID: null,
     token: null,
     error: null,
-    authLoading: false
+    authLoading: false,
+    triggerSuccessModal: false,
+    successMessage: ''
   };
 
   componentDidMount() {
@@ -44,8 +48,7 @@ class App extends Component {
     this.setAutoLogout(timeLeft);
   }
 
-  loginHandler = (event, loginData) => {
-    event.preventDefault();
+  loginHandler = (loginData) => {
     this.setState({ authLoading: true });
     axios.post('http://localhost:5000/auth/login', loginData)
       .then(res => {
@@ -68,7 +71,65 @@ class App extends Component {
         if (err.response.status === 422 ) {
           err = new Error('Validation failed.');
         } else if (err.response.status === 401) {
-          err = new Error('The email and password you entered did not match our records. Please double-check and try again');
+          err = new Error('The email and password you entered did not match our records. Please double-check and try again.');
+        }
+        this.setState({
+          isLoggedIn: false, 
+          authLoading: false,
+          error: err
+        });
+      });
+  };
+
+  passwordResetHandler = (email) => {
+    this.setState({ authLoading: true });
+
+    axios.post('http://localhost:3000/auth/reset', { email })
+      .then(res => {
+        this.setState({ 
+          authLoading: false,
+          triggerSuccessModal: true,
+          successMessage: 'An email has been sent. Please check your email for the password reset email.'
+        });
+        console.log(res.data.message);
+      })
+      .catch(err => {
+        console.log(err);
+        if (err.response.status === 422 ) {
+          err = new Error('Validation failed.');
+        } else if (err.response.status === 404) {
+          err = new Error('Could not find an account associated with that email.');
+        } else {
+          err = new Error('Could not send password reset email.')
+        }
+        this.setState({
+          isLoggedIn: false, 
+          authLoading: false,
+          error: err
+        });
+      });
+  };
+
+  updatePasswordHandler = (passwordData) => {
+    this.setState({ authLoading: true });
+
+    axios.put('http://localhost:3000/auth/new-password', passwordData)
+      .then(res => {
+        this.setState({ 
+          authLoading: false,
+          triggerSuccessModal: true,
+          successMessage: 'Password successfully updated'
+        });
+        console.log(res.data.message);
+      })
+      .catch(err => {
+        console.log(err);
+        if (err.response.status === 422 ) {
+          err = new Error('Validation failed.');
+        } else if (err.response.status === 401) {
+          err = new Error('The token is not valid or expired');
+        } else {
+          err = new Error('Could not update your password.')
         }
         this.setState({
           isLoggedIn: false, 
@@ -90,10 +151,10 @@ class App extends Component {
         console.log(err);
         if (err.response.status === 422) {
           err = new Error(
-            "Validation failed. Make sure the email address isn't used yet!"
+            "Validation failed"
           );
         } else if (err.response.status === 409) {
-          err = new Error('Make sure the two passwords match.');
+          err = new Error('An account with that email address already exists!');
         } else {
           err = new Error('Failed to create new user!');
         }
@@ -103,6 +164,12 @@ class App extends Component {
           error: err
         });
       });
+  };
+
+  handleSuccessModalClose = () => {
+    this.setState({ triggerSuccessModal: false, successMessage: '' });
+    this.props.history.replace('/');
+    window.location.reload();
   };
 
   logoutHandler = () => {
@@ -134,6 +201,7 @@ class App extends Component {
               <LoginPage 
                 {...props}
                 onLogin={this.loginHandler}
+                onReset={this.passwordResetHandler}
                 loading={this.state.authLoading}
               />
             )} 
@@ -144,6 +212,16 @@ class App extends Component {
               <SignupPage 
                 {...props}
                 onSignup={this.signupHandler}
+                loading={this.state.authLoading}
+              />
+            )}
+          />
+          <Route 
+            path="/reset" 
+            render={props => (
+              <PasswordReset 
+                {...props}
+                onUpdate={this.updatePasswordHandler}
                 loading={this.state.authLoading}
               />
             )}
@@ -184,7 +262,7 @@ class App extends Component {
           <Route 
             exact path="/account" 
             render={props => (
-              <AccountSettings 
+              <AccountDetails
                 {...props}
                 token={this.state.token}
               />
@@ -216,6 +294,15 @@ class App extends Component {
     return (
       <Container>
         <ErrorModal error={this.state.error} onHandle={this.errorHandler} />
+        <Modal 
+          title="Success!"
+          acceptButtonText="Accept"
+          show={this.state.triggerSuccessModal} 
+          handleClose={this.handleSuccessModalClose} 
+          handleAccept={this.handleSuccessModalClose}
+        >
+          <p>{this.state.successMessage}</p>
+       </Modal>
         <Navigation onLogout={this.logoutHandler} isLoggedIn={this.state.isLoggedIn} />
         {routes}
       </Container>

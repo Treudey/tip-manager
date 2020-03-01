@@ -1,0 +1,10 @@
+.forgotPwd {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.forgotPwd:hover {
+    color: #0056b3;
+    text-decoration: underline;
+    cursor: pointer;
+}
