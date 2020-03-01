@@ -11,8 +11,11 @@
 * React Google Charts
 * axios
 * Heroku
-* JawsDB
-* REST API Principals
+* mLab
+* REST APIs
+* SendGrid
+* JSON Web Tokens
+* bcryptjs
 * JavaScript
 * Bootstrap
 * HTML
