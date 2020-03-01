@@ -68,10 +68,12 @@ class App extends Component {
       })
       .catch(err => {
         console.log(err);
-        if (err.response.status === 422 ) {
-          err = new Error('Validation failed.');
-        } else if (err.response.status === 401) {
-          err = new Error('The email and password you entered did not match our records. Please double-check and try again.');
+        if (err.response) {
+          if (err.response.status === 422 ) {
+            err = new Error('Validation failed.');
+          } else if (err.response.status === 401) {
+            err = new Error('The email and password you entered did not match our records. Please double-check and try again.');
+          }
         }
         this.setState({
           isLoggedIn: false, 
@@ -95,10 +97,14 @@ class App extends Component {
       })
       .catch(err => {
         console.log(err);
-        if (err.response.status === 422 ) {
-          err = new Error('Validation failed.');
-        } else if (err.response.status === 404) {
-          err = new Error('Could not find an account associated with that email.');
+        if (err.response) {
+          if (err.response.status === 422 ) {
+            err = new Error('Validation failed.');
+          } else if (err.response.status === 404) {
+            err = new Error('Could not find an account associated with that email.');
+          } else {
+            err = new Error('Could not send password reset email.')
+          }
         } else {
           err = new Error('Could not send password reset email.')
         }
@@ -124,10 +130,14 @@ class App extends Component {
       })
       .catch(err => {
         console.log(err);
-        if (err.response.status === 422 ) {
-          err = new Error('Validation failed.');
-        } else if (err.response.status === 401) {
-          err = new Error('The token is not valid or expired');
+        if (err.response) {
+          if (err.response.status === 422 ) {
+            err = new Error('Validation failed.');
+          } else if (err.response.status === 401) {
+            err = new Error('The token is not valid or expired');
+          } else {
+            err = new Error('Could not update your password.')
+          }
         } else {
           err = new Error('Could not update your password.')
         }
@@ -149,12 +159,16 @@ class App extends Component {
       })
       .catch(err => {
         console.log(err);
-        if (err.response.status === 422) {
-          err = new Error(
-            "Validation failed"
-          );
-        } else if (err.response.status === 409) {
-          err = new Error('An account with that email address already exists!');
+        if (err.response) {
+          if (err.response.status === 422) {
+            err = new Error(
+              "Validation failed"
+            );
+          } else if (err.response.status === 409) {
+            err = new Error('An account with that email address already exists!');
+          } else {
+            err = new Error('Failed to create new user!');
+          }
         } else {
           err = new Error('Failed to create new user!');
         }

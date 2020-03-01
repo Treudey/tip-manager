@@ -158,12 +158,17 @@ export default class AccountDetails extends Component {
         })
         .catch(err => {
           console.log(err);
-          if (err.response.status === 422) {
-            err = new Error("Validation failed.");
-          } else if (err.response.status === 401) {
-            err = new Error("You did not enter the correct old password. Please try again");
-          } else if (err.response.status === 409) {
-            err = new Error('An account with that email address already exists!');
+          
+          if (err.response) {
+            if (err.response.status === 422) {
+              err = new Error("Validation failed.");
+            } else if (err.response.status === 401) {
+              err = new Error("You did not enter the correct old password. Please try again");
+            } else if (err.response.status === 409) {
+              err = new Error('An account with that email address already exists!');
+            } else {
+              err = new Error('Can\'t update user data!');
+            }
           } else {
             err = new Error('Can\'t update user data!');
           }

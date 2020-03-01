@@ -92,7 +92,7 @@ exports.signup = (req, res, next) => {
       sgMail.setApiKey(process.env.SENDGRID_API_KEY);
       return sgMail.send({
         to: email,
-        from: 'welcome@tipmanager.com',
+        from: 'welcome@tip-manager.herokuapp.com',
         subject: 'Welcome to Tip Manager',
         html: `
           <h1>You successfully signed up!</h1>
@@ -100,7 +100,7 @@ exports.signup = (req, res, next) => {
             You successfully signed up and your account was created. 
             You can start adding your tips right away. Just follow the link:
           </p>
-          <a href="http://localhost:3000">Tip Manager</a>
+          <a href="http://tip-manager.herokuapp.com">Tip Manager</a>
         `
       })
     })
@@ -242,13 +242,13 @@ exports.resetPassword = (req, res, next) => {
         sgMail.setApiKey(process.env.SENDGRID_API_KEY);
         return sgMail.send({
           to: email,
-          from: 'reset@tipmanager.com',
+          from: 'reset@tip-manager.herokuapp.com.com',
           subject: 'Password Reset',
           html: `
             <h1>You've Requested a Password Reset</h1>
             <p>
               Click this 
-                <a href="http://localhost:3000/reset?token=${token}">link</a> 
+                <a href="http://tip-manager.herokuapp.com/reset?token=${token}">link</a> 
               to set a new password. It will only be valid for one hour.
             </p>
           `
