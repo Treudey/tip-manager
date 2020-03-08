@@ -137,7 +137,7 @@ export default class Login extends Component {
           <Fragment>
             <Button 
               className="btn-danger" 
-              onClick={() => this.setState({ resetPasswordEnabled: false })}
+              onClick={() => this.setState({ resetPasswordEnabled: false, resetEmail: '' })}
             >
               X
             </Button>

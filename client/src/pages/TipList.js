@@ -4,6 +4,7 @@ import moment from 'moment';
 
 import Table from '../components/Table';
 import ErrorModal from '../components/ErrorModal';
+import ConfirmModal from '../components/ConfirmModal';
 import Loader from '../components/Loader';
 
 export default class TipList extends Component {
@@ -12,7 +13,9 @@ export default class TipList extends Component {
     token: this.props.token,
     tips: [],
     error: null,
-    tipsLoading: true
+    tipsLoading: true,
+    enableConfirmModal: false,
+    tipToBeDeleted: null
   };
 
   componentDidMount() {
@@ -36,7 +39,7 @@ export default class TipList extends Component {
   }
 
   deleteTip = (id) => {
-    this.setState({ tipsLoading: true })
+    this.setState({ tipsLoading: true, enableConfirmModal: false });
     axios.delete('/tips/' + id, {
       headers: {
         Authorization: 'Bearer ' + this.state.token
@@ -69,6 +72,20 @@ export default class TipList extends Component {
     });
   };
 
+  handleDeleteButton = (id) => {
+    this.setState({
+      enableConfirmModal: true,
+      tipToBeDeleted: id
+    })
+  };
+
+  cancelConfirmModal = () => {
+    this.setState({
+      enableConfirmModal: false,
+      tipToBeDeleted: null
+    });
+  }
+
   errorHandler = () => {
     this.setState({ error: null });
   };
@@ -82,7 +99,7 @@ export default class TipList extends Component {
         <Fragment>
           <Table 
             headers={['Date', 'Position', 'Type of Shift', 'Amount', 'Shift Length', 'Actions']} 
-            delete={this.deleteTip} 
+            delete={this.handleDeleteButton} 
             rowData={this.formatTipsForTable()} 
           />
         </Fragment>
@@ -92,6 +109,11 @@ export default class TipList extends Component {
     return (
       <div className="container-fluid">
         <ErrorModal error={this.state.error} onHandle={this.errorHandler} />
+        <ConfirmModal 
+          isEnabled={this.state.enableConfirmModal} 
+          onConfirm={() => this.deleteTip(this.state.tipToBeDeleted)} 
+          onCancel={this.cancelConfirmModal} 
+        />
         <h1>Your Tips</h1>
         {this.state.tipsLoading ? (
           <div style={{ textAlign: 'center', marginTop: '2rem' }}>

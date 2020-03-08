@@ -2,9 +2,11 @@ import React, { Component, Fragment } from 'react';
 import axios from 'axios';
 
 import ErrorModal from '../components/ErrorModal';
+import Modal from '../components/Modal';
 import Loader from '../components/Loader';
 import { validateForm } from '../utils/validators';
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
+import './Account.css'
 
 export default class AccountDetails extends Component {
   state = {
@@ -26,8 +28,10 @@ export default class AccountDetails extends Component {
       email: '',
       oldPassword: '',
       newPassword: '',
-      confirmPassword: ''
+      confirmPassword: '',
+      passwordForDeleteAccount: ''
     },
+    passwordForDeleteAccount: '',
     disableSubmit: true,
     passwordFormEnabled: false,
     error: null,
@@ -35,6 +39,8 @@ export default class AccountDetails extends Component {
     formLoading: false,
     userUpdated: false,
     messageTimer: null,
+    showDeleteButton: false,
+    enableConfirmModal: false
   }
 
   componentDidMount() {
@@ -75,6 +81,10 @@ export default class AccountDetails extends Component {
     if (errors[e.target.id].length) {
       errors[e.target.id] = '';
       this.setState({ formErrors: errors });
+    }
+
+    if (e.target.id === 'passwordForDeleteAccount') {
+      return this.setState({ passwordForDeleteAccount: e.target.value });
     }
 
     const formData = {...this.state.formData};
@@ -210,6 +220,62 @@ export default class AccountDetails extends Component {
     });
   };
 
+  deleteAccountHandler = () => {
+    const errors = {...this.state.formErrors};
+    const password = this.state.passwordForDeleteAccount;
+
+    errors.passwordForDeleteAccount = 
+            !(password.length >= 5 && password.length <= 20)
+              ? 'All passwords must be between 5 and 20 characters long'
+              : '';
+
+    if (errors.passwordForDeleteAccount.length) {
+      return this.setState({ formErrors: errors, formLoading: false });
+    }
+
+    axios.put('/auth/delete', {password}, { 
+      headers: {
+        Authorization: 'Bearer ' + this.state.token
+      }
+    })
+      .then(res => {
+        console.log(res.data.message);
+        this.setState({ enableConfirmModal: false });
+        this.props.onLogout();
+      })
+      .catch(err => {
+        console.log(err);
+        if (err.response) {
+          if (err.response.status === 401) {
+            err = new Error('You provided the incorrect password.'); 
+          } else {
+            err = new Error('Failed to delete the account.');
+          }
+        } else {
+          err = new Error('Failed to delete the account.');
+        }
+        this.setState({ 
+          error: err, 
+          enableConfirmModal: false,
+          passwordForDeleteAccount: ''
+        });
+      });
+  };
+
+  deleteButtonHandler = () => {
+    this.setState({ enableConfirmModal: true });
+  };
+  
+  cancelConfirmModal = () => {
+    const errors = {...this.state.formErrors};
+    errors.passwordForDeleteAccount = '';
+    this.setState({ 
+      enableConfirmModal: false,
+      passwordForDeleteAccount: '',
+      formErrors: errors
+    });
+  }
+
   resetData = () => {
     const formData = {...this.state.formData};
     formData.oldPassword = '';
@@ -231,6 +297,25 @@ export default class AccountDetails extends Component {
     return (
       <Container fluid>
         <ErrorModal error={this.state.error} onHandle={this.errorHandler} />
+        <Modal 
+          acceptButtonText="Confirm"
+          title="Delete Your Account"
+          show={this.state.enableConfirmModal} 
+          handleClose={this.cancelConfirmModal}
+          handleAccept={this.deleteAccountHandler}
+        >
+          <p>This action cannot be undone. Please enter your password to confirm your decision.</p>
+          <label>Password:</label>
+          <input 
+            type="password" 
+            className="form-control" 
+            id="passwordForDeleteAccount"
+            value={this.state.passwordForDeleteAccount}
+            onChange={this.onChangeInput}
+          ></input>
+          {errors.passwordForDeleteAccount.length > 0 && 
+            <span className='error text-danger'>{errors.passwordForDeleteAccount}</span>}
+        </Modal>
         <Row>
           <h1>Account Details</h1>
         </Row>
@@ -239,6 +324,7 @@ export default class AccountDetails extends Component {
             <Loader />
           </div>
         ) : (
+          <Fragment>
           <Row>
             <Form style={{width: "100%"}} onSubmit={this.onSubmitForm}>
               <Form.Group as={Row}>
@@ -350,6 +436,29 @@ export default class AccountDetails extends Component {
             {this.state.userUpdated && 
               <span className="text-success" >User Info Updated!</span>}
           </Row>
+          <Row>
+            <div className="delete-account">
+              <h4 className="delete-account__header">Delete Account</h4>
+              <div className="delete-account__box">
+                {this.state.showDeleteButton ? (
+                  <Button 
+                    variant="danger"
+                    onClick={this.deleteButtonHandler}
+                  >
+                    Delete Account
+                  </Button>
+                ) : (
+                  <p 
+                    className='delete-account__link' 
+                    onClick={() => this.setState({ showDeleteButton: true })}
+                  >
+                    Want to Delete Your Account?
+                  </p>
+                )}
+              </div>
+            </div>
+          </Row>
+          </Fragment>
         )}
       </Container>
     );

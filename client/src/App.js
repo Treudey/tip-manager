@@ -102,6 +102,8 @@ class App extends Component {
             err = new Error('Validation failed.');
           } else if (err.response.status === 404) {
             err = new Error('Could not find an account associated with that email.');
+          } else if (err.response.status === 403) {
+            err = new Error('You have made 1 password request already today. Please wait 24 hours before attempting another.');
           } else {
             err = new Error('Could not send password reset email.')
           }
@@ -279,6 +281,7 @@ class App extends Component {
               <AccountDetails
                 {...props}
                 token={this.state.token}
+                onLogout={this.logoutHandler}
               />
             )} 
           />

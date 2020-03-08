@@ -1,0 +1,26 @@
+.delete-account {
+    
+    margin: 2rem auto;
+}
+
+.delete-account__header {
+    text-align: center;
+}
+
+.delete-account__box {
+    border: 1px solid #dc3545;
+    border-radius: 4px;
+    padding: 2rem 3rem;
+    text-align: center;
+}
+
+.delete-account__link {
+    color: #dc3545;
+    text-decoration: none;
+}
+
+.delete-account__link:hover {
+    color: #9e222f;
+    text-decoration: underline;
+    cursor: pointer;
+}

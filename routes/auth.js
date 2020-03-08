@@ -43,7 +43,7 @@ router.put(
 router.post(
   '/login', 
   [
-    body('email').isEmail().normalizeEmail(),
+    body('email').isEmail(),
     body('password').trim().isLength({ min: 5, max: 20 })
   ],
   authController.login
@@ -65,5 +65,8 @@ router.put(
   ],
   authController.updatePassword
 );
+
+// PUT /auth/delete
+router.put('/delete', isAuth, authController.deleteAccount);
 
 module.exports = router;

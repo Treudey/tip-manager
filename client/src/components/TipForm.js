@@ -38,6 +38,10 @@ export default class TipForm extends Component {
   };
 
   componentDidMount() {
+    this.loadData();
+  }
+
+  loadData() {
     axios.get('/auth/userlists', { 
       headers: {
         Authorization: 'Bearer ' + this.state.token
@@ -174,7 +178,7 @@ export default class TipForm extends Component {
     }
    
     if (!validateForm(errors)) {
-      return this.setState({ formErrors: errors });
+      return this.setState({ formErrors: errors, formLoading: false });
     }
 
 
@@ -213,6 +217,7 @@ export default class TipForm extends Component {
           formLoading: false,
           messageTimer: setTimeout(() => this.setState({ tipAdded: false }), 3000)
         });
+        this.loadData();
       })
       .catch(err => {
         console.log(err);
@@ -223,7 +228,7 @@ export default class TipForm extends Component {
   };
 
   onSubmitNewInput = (inputType) => {
-    let newInput = this.state['new' + inputType.replace(inputType.charAt(0), inputType.charAt(0).toUpperCase())];
+    const newInput = this.state['new' + inputType.replace(inputType.charAt(0), inputType.charAt(0).toUpperCase())];
     const errors =  (({ newShiftType, newPosition }) => ({ newShiftType, newPosition }))(this.state.formErrors);
     if (inputType === 'shiftType'){
       errors.newShiftType = 
@@ -238,20 +243,32 @@ export default class TipForm extends Component {
     }
   
     if (!validateForm(errors)) {
-      return this.setState({ formErrors: Object.assign(this.state.formErrors, errors) });
+      return this.setState({  formErrors: Object.assign(this.state.formErrors, errors) });
     }
 
     const tip = {...this.state.tip};
     tip[inputType] = newInput.trim();
+    let optionsList;
+    if (!this.state[inputType + 'Options'].includes(newInput)) {
+      optionsList = [newInput.trim(), ...this.state[inputType + 'Options']];
+    }
 
     this.setState({
       tip,
-      [inputType + 'Options']: [newInput.trim(), ...this.state[inputType + 'Options']],
+      [inputType + 'Options']: optionsList || this.state[inputType + 'Options'],
       newPosition: '',
       newShiftType: '',
       showPositionModal: false,
       showShiftTypeModal: false
     });
+  };
+
+  handleKeyPressNewInput = (e) => {
+    if(e.key === 'Enter') {
+      let input = e.target.id.substring(3);
+      input = input.replace(input.charAt(0), input.charAt(0).toLowerCase());
+      this.onSubmitNewInput(input);
+    }
   };
 
   onCloseInputModal = () => {
@@ -288,6 +305,7 @@ export default class TipForm extends Component {
             className="form-control"
             id="position"
             value={this.state.tip.position}
+            placeholder="e.g. Bartender"
             onChange={this.onChangeInput}
           />
           {errors.position.length > 0 && 
@@ -300,6 +318,7 @@ export default class TipForm extends Component {
             className="form-control"
             id="shiftType"
             value={this.state.tip.shiftType}
+            placeholder="e.g. Close"
             onChange={this.onChangeInput}
           />
           {errors.shiftType.length > 0 && 
@@ -360,7 +379,8 @@ export default class TipForm extends Component {
               type="number" 
               className="form-control"
               id="shiftLength"
-              value={this.state.tip.shiftLength}
+              value={this.state.tip.shiftLength || ''}
+              placeholder={0}
               onChange={this.onChangeInput}
             />
             {errors.shiftLength.length > 0 && 
@@ -372,7 +392,8 @@ export default class TipForm extends Component {
               type="number"
               className="form-control"
               id="amount"
-              value={this.state.tip.amount}
+              value={this.state.tip.amount || ''}
+              placeholder={0}
               onChange={this.onChangeInput}
             />
             {errors.amount.length > 0 && 
@@ -402,8 +423,11 @@ export default class TipForm extends Component {
             type="text" 
             className="form-control" 
             id="newPosition"
+            value={this.state.newPosition}
+            placeholder="e.g. Server"
             ref={(text) => { this.input = text; }} 
             onChange={this.onChangeInput}
+            onKeyPress={this.handleKeyPressNewInput}
           />
           {errors.newPosition.length > 0 && 
             <span className='error text-danger'>{errors.newPosition}</span>}
@@ -420,8 +444,11 @@ export default class TipForm extends Component {
             type="text" 
             className="form-control" 
             id="newShiftType"
+            value={this.state.newShiftType}
+            placeholder="e.g. Open"
             ref={(text) => { this.input = text; }} 
             onChange={this.onChangeInput}
+            onKeyPress={this.handleKeyPressNewInput}
           ></input>
           {errors.newShiftType.length > 0 && 
             <span className='error text-danger'>{errors.newShiftType}</span>}

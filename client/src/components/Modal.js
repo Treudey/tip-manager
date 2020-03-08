@@ -10,10 +10,10 @@ const Modal = (props) => (
       {props.children}
     </BootstrapModal.Body>
     <BootstrapModal.Footer>
-      <Button variant="secondary" onClick={props.handleClose}>
+      <Button variant="danger" onClick={props.handleClose}>
         Close
       </Button>
-      <Button variant="primary" onClick={props.handleAccept}>
+      <Button variant="success" onClick={props.handleAccept}>
         {props.acceptButtonText}
       </Button>
     </BootstrapModal.Footer>

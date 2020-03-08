@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 const sgMail = require('@sendgrid/mail');
 
 const User = require('../models/user.model');
+const Tip = require('../models/tip.model');
 const { advErrorHandler, errorHandler } = require('../utils/errorHandlers');
 
 exports.getUserData = (req, res, next) => {
@@ -101,6 +102,9 @@ exports.signup = (req, res, next) => {
             You can start adding your tips right away. Just follow the link:
           </p>
           <a href="https://tip-manager.herokuapp.com">Tip Manager</a>
+          <br>
+          <p>Cheers,</p>
+          <p>The Tip Manager Team</p>
         `
       })
     })
@@ -233,8 +237,14 @@ exports.resetPassword = (req, res, next) => {
         if (!user) {
           advErrorHandler('Could not find an account associated with that email.', 404);
         }
+
+        if (user.resetTokenRequestDate && Date.now() - user.resetTokenRequestDate.getTime() < 24 * 60 * 60 * 1000) {
+          advErrorHandler('User requested another password reset within 24 hours', 403);
+        }
+
         user.resetToken = token;
         user.resetTokenExpiry = Date.now() + (60 * 60 * 1000);
+        user.resetTokenRequestDate = new Date();
         return user.save();
       })
       .then(result => {
@@ -247,10 +257,14 @@ exports.resetPassword = (req, res, next) => {
           html: `
             <h1>You've Requested a Password Reset</h1>
             <p>
-              Click this 
+              You are limited to one password reset request once every 24 hours.
+              If you did not make this request please ignore this email. Otherwise, Click this 
                 <a href="https://tip-manager.herokuapp.com/reset?token=${token}">link</a> 
               to set a new password. It will only be valid for one hour.
             </p>
+            <br>
+            <p>Cheers,</p>
+            <p>The Tip Manager Team</p>
           `
         })
       })
@@ -293,4 +307,27 @@ exports.updatePassword = (req, res, next) => {
       res.status(200).json({ message: 'Password updated!' });
     })
     .catch(err => errorHandler(err, next))
+};
+
+exports.deleteAccount = (req, res, next) => {
+  const userID = req.userID;
+  const password = req.body.password;
+
+  User.findById(userID)
+    .then(user => {
+      return bcrypt.compare(password, user.password);
+    })
+    .then(isEqual => {
+      if (!isEqual) {
+        advErrorHandler('Incorrect password!', 401);
+      }
+      return User.findByIdAndDelete(userID);
+    })
+    .then(result => {
+      return Tip.deleteMany({ user: userID });
+    })
+    .then(result => {
+      res.status(200).json({ message: 'User and all associated tips were deleted.' });
+    })
+    .catch(err => errorHandler(err, next));
 };
