@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 
 const { validationResult } = require('express-validator');
+const normalizeEmail = require('validator/lib/normalizeEmail');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const sgMail = require('@sendgrid/mail');
@@ -18,7 +19,7 @@ exports.getUserData = (req, res, next) => {
         message: 'Successfully fetched all user data', 
         user: {
           name: user.name,
-          email: user.email,
+          email: user.originalEmail,
           positions: user.positions,
           shiftTypes: user.shiftTypes
         }
@@ -37,7 +38,7 @@ exports.getUserDataWithTips = (req, res, next) => {
         message: 'Successfully fetched all user data and tips', 
         user: {
           name: user.name,
-          email: user.email,
+          email: user.originalEmail,
           tips: user.tips,
           positions: user.positions,
           shiftTypes: user.shiftTypes
@@ -67,7 +68,8 @@ exports.signup = (req, res, next) => {
     advErrorHandler('Validation failed.', 422);
   }
 
-  const { name, email, password, confirmPassword } = req.body;
+  const { name, email: originalEmail, password, confirmPassword } = req.body;
+  const email = normalizeEmail(originalEmail, { all_lowercase: false });
   User.findOne({ email })
     .then(userDoc => {
       if (userDoc) {
@@ -83,6 +85,7 @@ exports.signup = (req, res, next) => {
       const newUser = new User({
         name,
         email, 
+        originalEmail,
         password: hashedPwd
       });
 
@@ -118,7 +121,8 @@ exports.update = (req, res, next) => {
   }
 
   const userID = req.userID;
-  const { name, email, isPasswordChange } = req.body;
+  const { name, email: originalEmail, isPasswordChange } = req.body;
+  const email = normalizeEmail(originalEmail, { all_lowercase: false });
 
   User.findOne({ email })
     .then(userDoc => {
@@ -157,6 +161,7 @@ exports.update = (req, res, next) => {
             loadedUser.password = hashedPwd;
             loadedUser.name = name;
             loadedUser.email = email;
+            loadedUser.originalEmail = originalEmail;
       
             return loadedUser.save();
           })
@@ -169,6 +174,7 @@ exports.update = (req, res, next) => {
           .then(user => {
             user.name = name;
             user.email = email;
+            user.originalEmail = originalEmail;
     
             return user.save();
           })

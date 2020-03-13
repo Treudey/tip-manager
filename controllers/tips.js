@@ -229,7 +229,7 @@ exports.getTipsFile = (req, res, next) => {
         }
 
         setTimeout(() => {
-          fs.unlinkSync(filePath); // delete this file after 30 seconds
+          fileHelper.deleteFile(fileUrl); // delete this file after 30 seconds
         }, 30000);
         res.download(filePath);
       });

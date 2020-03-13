@@ -41,7 +41,7 @@ router.put(
 router.post(
   '/login', 
   [
-    body('email').isEmail(),
+    body('email').isEmail().normalizeEmail(),
     body('password').trim().isLength({ min: 5, max: 20 })
   ],
   authController.login
@@ -50,7 +50,7 @@ router.post(
 // POST /auth/reset
 router.post(
   '/reset', 
-  [body('email').isEmail()],
+  [body('email').isEmail().normalizeEmail()],
   authController.resetPassword
 );
 
