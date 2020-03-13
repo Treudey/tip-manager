@@ -38,12 +38,34 @@ export default class TipList extends Component {
       });
   }
 
+  downloadCSV = () => {
+    axios.get('/tips/download', {
+      headers: {
+        Authorization: 'Bearer ' + this.state.token
+      },
+      responseType: 'blob'
+    })
+      .then(response => {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'tips.csv');
+        document.body.appendChild(link);
+        link.click();
+      })
+      .catch(err => {
+        console.log(err);
+        err = new Error('Couldn\'t download CSV file');
+        this.setState({ error: err });
+      });
+  };
+
   deleteTip = (id) => {
     this.setState({ tipsLoading: true, enableConfirmModal: false });
     axios.delete('/tips/' + id, {
       headers: {
         Authorization: 'Bearer ' + this.state.token
-      }, 
+      }
     })
       .then(res => {
         console.log(res.data.message);
@@ -97,6 +119,7 @@ export default class TipList extends Component {
     } else {
       loadedHtml = (
         <Fragment>
+          <a href="# " onClick={this.downloadCSV}>Download Your Tips as a CSV File</a>
           <Table 
             headers={['Date', 'Position', 'Type of Shift', 'Amount', 'Shift Length', 'Actions']} 
             delete={this.handleDeleteButton} 

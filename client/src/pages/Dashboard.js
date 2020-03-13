@@ -163,11 +163,11 @@ export default class Dashboard extends Component {
           </div>
           <div className="col-12">
             <Fragment>
-              <p>Total Tips Made: {getSafe(() => this.state.tipData.totals.total, '0')}</p>
-              <p>Tips Made This Year: {getSafe(() => this.state.tipDataCurrYear.totals.total, '0')}</p>
-              <p>Tips Made This Month: {getSafe(() => this.state.tipDataByMonth[moment().format('MMMM')].totals.total, '0')}</p>
-              <p>Average Tips per Shift: {getSafe(() => this.state.tipData.totals.average, '0')}</p>
-              <p>Hourly: {getSafe(() => this.state.tipData.totals.hourly, '0')}/hr</p>
+              <p>Total Tips Made: {getSafe(() => this.state.tipData.totals.total, '$0')}</p>
+              <p>Tips Made This Year: {getSafe(() => this.state.tipDataCurrYear.totals.total, '$0')}</p>
+              <p>Tips Made This Month: {getSafe(() => this.state.tipDataByMonth[moment().format('MMMM')].totals.total, '$0')}</p>
+              <p>Average Tips per Shift: {getSafe(() => this.state.tipData.totals.average, '$0')}</p>
+              <p>Hourly: {getSafe(() => this.state.tipData.totals.hourly, '$0')}/hr</p>
             </Fragment>
           </div>
         </div>

@@ -7,6 +7,9 @@ const isAuth = require('../middleware/isAuth');
 // GET /tips/
 router.get('/', isAuth, tipsController.getTips);
 
+// GET /tips/download
+router.get('/download', isAuth, tipsController.getTipsFile);
+
 // GET /tips/:tipID
 router.get('/:tipID', isAuth, tipsController.getTip);
 
@@ -37,6 +40,9 @@ router.put(
   ], 
   tipsController.updateTip
 );
+
+// POST /tips/upload
+router.post('/upload', isAuth, tipsController.convertFileToTips);
 
 // DELETE /tips/:tipID
 router.delete('/:tipID', isAuth, tipsController.deleteTip);

@@ -18,6 +18,7 @@ import PasswordReset from './pages/PasswordReset';
 import NetworkDetector from './hoc/NetworkDetector';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Container } from 'react-bootstrap';
+import UploadPage from './pages/Upload';
 
 class App extends Component {
 
@@ -298,6 +299,15 @@ class App extends Component {
             exact path="/edit/:id" 
             render={props => (
               <EditTip
+                {...props}
+                token={this.state.token}
+              />
+            )} 
+          />
+          <Route 
+            exact path="/upload" 
+            render={props => (
+              <UploadPage 
                 {...props}
                 token={this.state.token}
               />

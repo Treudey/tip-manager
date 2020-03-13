@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from 'react';
+import { Link } from "react-router-dom";
 import axios from 'axios';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -411,6 +412,8 @@ export default class TipForm extends Component {
         </form>
         {this.state.tipAdded && 
           <span className="text-success" >Tip successfully added!</span>}
+        {!this.props.editing && 
+          <Link to="/upload" >Upload a CSV File</Link>}
         <Modal 
           title="Add a Position"
           acceptButtonText="Save"
