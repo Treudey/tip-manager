@@ -19,6 +19,12 @@ const userSchema = new Schema({
     type: String,
     required: true
   },
+  verified: {
+    type: Boolean,
+    default: false
+  },
+  verifyToken: String,
+  verifyTokenExpiry: Date,
   resetToken: String,
   resetTokenExpiry: Date,
   resetTokenRequestDate: Date,

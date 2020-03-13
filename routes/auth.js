@@ -1,7 +1,6 @@
 const router = require('express').Router();
 const { body } = require('express-validator');
 
-const User = require('../models/user.model');
 const authController = require('../controllers/auth');
 const isAuth = require('../middleware/isAuth')
 
@@ -25,6 +24,16 @@ router.post(
   authController.signup
 );
 
+// POST /auth/login
+router.post(
+  '/login', 
+  [
+    body('email').isEmail().normalizeEmail(),
+    body('password').trim().isLength({ min: 5, max: 20 })
+  ],
+  authController.login
+);
+
 // PUT /auth/update
 router.put(
   '/update', 
@@ -37,14 +46,11 @@ router.put(
   authController.update
 );
 
-// POST /auth/login
+// POST /auth/verify
 router.post(
-  '/login', 
-  [
-    body('email').isEmail().normalizeEmail(),
-    body('password').trim().isLength({ min: 5, max: 20 })
-  ],
-  authController.login
+  '/verify',
+  [body('token').notEmpty()], 
+  authController.verifyAccount
 );
 
 // POST /auth/reset

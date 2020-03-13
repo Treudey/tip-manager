@@ -165,19 +165,6 @@ exports.convertFileToTips = (req, res, next) => {
       }
       const newTip = new Tip(tipObject);
       tips.push(newTip);
-
-      User.findById(userID)
-        .then(user => {
-          user.tips.push(newTip);
-          if (!user.positions.includes(newTip.position)) {
-            user.positions.push(newTip.position);
-          }
-          if (!user.shiftTypes.includes(newTip.shiftType)) {
-            user.shiftTypes.push(newTip.shiftType);
-          }
-          return user.save();
-        })
-        .catch(err => errorHandler(err, next));
     })
     .on('end', () => {
       console.log("End of file import");
@@ -192,6 +179,21 @@ exports.convertFileToTips = (req, res, next) => {
         err.statusCode = 422;
         return next(err);
       }
+      User.findById(userID)
+        .then(user => {
+          tips.forEach(tip => {
+            user.tips.push(tip);
+            if (!user.positions.includes(tip.position)) {
+              user.positions.push(tip.position);
+            }
+            if (!user.shiftTypes.includes(tip.shiftType)) {
+              user.shiftTypes.push(tip.shiftType);
+            }
+          });
+          return user.save();
+        })
+        .catch(err => errorHandler(err, next));
+
       Tip.create(tips)
         .then(result => {
           res.status(200).json({ message : "Successfully added all data from file to database." });    
@@ -204,10 +206,9 @@ exports.convertFileToTips = (req, res, next) => {
 
 exports.getTipsFile = (req, res, next) => {
   const userID = req.userID;
-  const fileName = 'tips-' + userID + '.csv';
+  const fileName = 'tipsdownload-' + userID + '.csv';
   const filePath = path.join('csvs', fileName);
   const fields = ['date', 'position', 'shiftType', 'amount', 'shiftLength'];
-  const writeStream = fs.createWriteStream(filePath);
 
   Tip.find({ user: userID }).lean()
     .then(tips => {
@@ -229,8 +230,8 @@ exports.getTipsFile = (req, res, next) => {
         }
 
         setTimeout(() => {
-          fileHelper.deleteFile(fileUrl); // delete this file after 30 seconds
-        }, 30000);
+          fileHelper.deleteFile(filePath); // delete this file after 30 seconds
+        }, 3000);
         res.download(filePath);
       });
     });

@@ -7,6 +7,8 @@ import Modal from './components/Modal';
 import Navigation from './components/Navigation';
 import LoginPage from './pages/Login';
 import SignupPage from './pages/Signup';
+import PasswordReset from './pages/PasswordReset';
+import VerifyPage from './pages/Verify';
 import Dashboard from './pages/Dashboard';
 import AccountDetails from './pages/Account';
 import NoMatch from './pages/NoMatch';
@@ -14,11 +16,10 @@ import AddTip from './pages/AddTip';
 import EditTip from './pages/EditTip';
 import TipList from './pages/TipList';
 import ChartsPage from './pages/ChartsPage';
-import PasswordReset from './pages/PasswordReset';
+import UploadPage from './pages/Upload';
 import NetworkDetector from './hoc/NetworkDetector';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Container } from 'react-bootstrap';
-import UploadPage from './pages/Upload';
 
 class App extends Component {
 
@@ -70,11 +71,17 @@ class App extends Component {
       .catch(err => {
         console.log(err);
         if (err.response) {
-          if (err.response.status === 422 ) {
+          if (err.response.status === 422) {
             err = new Error('Validation failed.');
           } else if (err.response.status === 401) {
             err = new Error('The email and password you entered did not match our records. Please double-check and try again.');
+          } else if (err.response.status === 403) {
+            err = new Error('You have not verified your account yet. Please check for your verification email and follow the link within.');
+          }else {
+            err = new Error('Couldn\'t log you in.');
           }
+        } else {
+          err = new Error('Couldn\'t log you in.');
         }
         this.setState({
           isLoggedIn: false, 
@@ -99,7 +106,7 @@ class App extends Component {
       .catch(err => {
         console.log(err);
         if (err.response) {
-          if (err.response.status === 422 ) {
+          if (err.response.status === 422) {
             err = new Error('Validation failed.');
           } else if (err.response.status === 404) {
             err = new Error('Could not find an account associated with that email.');
@@ -134,7 +141,7 @@ class App extends Component {
       .catch(err => {
         console.log(err);
         if (err.response) {
-          if (err.response.status === 422 ) {
+          if (err.response.status === 422) {
             err = new Error('Validation failed.');
           } else if (err.response.status === 401) {
             err = new Error('The token is not valid or expired');
@@ -157,8 +164,11 @@ class App extends Component {
     this.setState({ authLoading: true });
     axios.post('/auth/signup', signupData)
       .then(res => {
-        this.setState({ authLoading: false });
-        this.props.history.replace('/');
+        this.setState({ 
+          authLoading: false,
+          triggerSuccessModal: true,
+          successMessage: 'You\'ve successfully signed up! Check your email so you can verify your account. You won\'t be able to log in until you do.'
+        });
       })
       .catch(err => {
         console.log(err);
@@ -181,6 +191,35 @@ class App extends Component {
           error: err
         });
       });
+  };
+
+  verifyAccountHandler = (token) => {
+    this.setState({ authLoading: true });
+
+    axios.post('/auth/verify', { token })
+    .then(res => {
+      this.setState({
+        authLoading: false,
+        triggerSuccessModal: true,
+        successMessage: 'Your account has been verified.'
+      });
+      console.log(res.data.message);
+    })
+    .catch(err => {
+      console.log(err);
+      if (err.response) {
+        if (err.response.status === 422) {
+          err = new Error('You did not provide any token');
+        } else if (err.response.status === 401) {
+          err = new Error('The token is not valid or expired');
+        } else {
+          err = new Error('Could not verify your account.')
+        }
+      } else {
+        err = new Error('Could not verify your account.')
+      }
+      this.setState({ error: err, authLoading: false });
+    });
   };
 
   handleSuccessModalClose = () => {
@@ -239,6 +278,16 @@ class App extends Component {
               <PasswordReset 
                 {...props}
                 onUpdate={this.updatePasswordHandler}
+                loading={this.state.authLoading}
+              />
+            )}
+          />
+          <Route 
+            path="/verify" 
+            render={props => (
+              <VerifyPage 
+                {...props}
+                onVerify={this.verifyAccountHandler}
                 loading={this.state.authLoading}
               />
             )}

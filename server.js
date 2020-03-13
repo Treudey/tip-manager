@@ -4,7 +4,7 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const multer = require('multer');
-const uuidv4 = require('uuid/v4')
+const { v4: uuidv4 } = require('uuid');
 const helmet = require('helmet');
 
 const tipsRoutes = require('./routes/tips');

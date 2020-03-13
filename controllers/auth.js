@@ -70,6 +70,15 @@ exports.signup = (req, res, next) => {
 
   const { name, email: originalEmail, password, confirmPassword } = req.body;
   const email = normalizeEmail(originalEmail, { all_lowercase: false });
+  const getToken = () => { 
+    return new Promise((resolve, reject) => {
+      crypto.randomBytes(32, (err, buffer) => {
+        if (err) reject(err);
+        resolve(buffer.toString('hex'));
+      });
+    })
+  };
+  let verifyToken;
   User.findOne({ email })
     .then(userDoc => {
       if (userDoc) {
@@ -78,23 +87,28 @@ exports.signup = (req, res, next) => {
       if (password !== confirmPassword) {
         advErrorHandler('Validation failed.', 422);
       }
-    
+      return getToken();
+    })
+    .then(token => {
+      verifyToken = token;
       return bcrypt.hash(password, 12);
     })
     .then(hashedPwd => {
+
       const newUser = new User({
         name,
         email, 
         originalEmail,
-        password: hashedPwd
+        password: hashedPwd,
+        verifyToken,
+        verifyTokenExpiry: Date.now() + (24 * 60 * 60 * 1000) //expiry date is 24hrs from now
       });
 
       return newUser.save();
     })
     .then(result => {
-      res.status(201).json({ message: 'New user created!', userID: result._id });
       sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-      return sgMail.send({
+      sgMail.send({
         to: email,
         from: 'welcome@tip-manager.herokuapp.com',
         subject: 'Welcome to Tip Manager',
@@ -102,14 +116,64 @@ exports.signup = (req, res, next) => {
           <h1>You successfully signed up!</h1>
           <p>
             You successfully signed up and your account was created. 
-            You can start adding your tips right away. Just follow the link:
+            Please click on the link below to verify your account. 
+            It will be valid for 24 hours.
           </p>
-          <a href="https://tip-manager.herokuapp.com">Tip Manager</a>
+          <a href="https://tip-manager.herokuapp.com/verify?token=${verifyToken}">Verify Your Account</a>
           <br>
           <p>Cheers,</p>
           <p>The Tip Manager Team</p>
         `
       })
+        .then(() => console.log('Email sent'))
+        .catch(err => errorHandler(err, next));
+
+      res.status(201).json({ message: 'New user created!', userID: result._id });
+      
+    })
+    .catch(err => errorHandler(err, next));
+};
+
+exports.login = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    advErrorHandler('Validation failed.', 422);
+  }
+
+  const { email, password } = req.body;
+  let loadedUser;
+  User.findOne({ email })
+    .then(user => {
+      if (!user) {
+        advErrorHandler('A user with this email could not be found.', 401);
+      }
+
+      if (!user.verified) {
+        advErrorHandler('The user has not verified their account yet.', 403);
+      }
+      
+      loadedUser = user;
+      return bcrypt.compare(password, user.password);
+    })
+    .then(isEqual => {
+      if (!isEqual) {
+        advErrorHandler('Incorrect password!', 401);
+      }
+      const jwtKey = process.env.JWT_KEY;
+      const token = jwt.sign(
+        { 
+          email: loadedUser.email,
+          userID: loadedUser._id.toString()
+        }, 
+        jwtKey,
+        { expiresIn: '1h' }
+      );
+      res.status(200)
+        .json({ 
+          message: 'User logged in', 
+          token, 
+          userID: loadedUser._id.toString() 
+        })
     })
     .catch(err => errorHandler(err, next));
 };
@@ -187,43 +251,30 @@ exports.update = (req, res, next) => {
     .catch(err => errorHandler(err, next));
 };
 
-exports.login = (req, res, next) => {
+exports.verifyAccount = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     advErrorHandler('Validation failed.', 422);
   }
 
-  const { email, password } = req.body;
-  let loadedUser;
-  User.findOne({ email })
+  const token = req.body.token;
+  User.findOne({ 
+    verifyToken: token,
+    verifyTokenExpiry: { $gt: Date.now() }
+  })
     .then(user => {
       if (!user) {
-        advErrorHandler('A user with this email could not be found.', 401);
+        advErrorHandler('The token has expired.', 401);
       }
-      loadedUser = user;
-      return bcrypt.compare(password, user.password);
+      user.verified = true;
+      user.verifyToken = undefined;
+      user.verifyTokenExpiry = undefined;
+      return user.save();
     })
-    .then(isEqual => {
-      if (!isEqual) {
-        advErrorHandler('Incorrect password!', 401);
-      }
-      const jwtKey = process.env.JWT_KEY;
-      const token = jwt.sign(
-        { 
-          email: loadedUser.email,
-          userID: loadedUser._id.toString()
-        }, 
-        jwtKey,
-        { expiresIn: '1h' }
-      );
-      res.status(200)
-        .json({ 
-          message: 'User logged in', 
-          token, 
-          userID: loadedUser._id.toString() 
-        })
+    .then(result => {
+      res.status(200).json({ message: 'Account verified!' });
     })
-    .catch(err => errorHandler(err, next));
+    .catch(err => errorHandler(err, next))
 };
 
 exports.resetPassword = (req, res, next) => {
@@ -254,9 +305,8 @@ exports.resetPassword = (req, res, next) => {
         return user.save();
       })
       .then(result => {
-        res.status(200).json({ message: 'Password reset email sent' });
         sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-        return sgMail.send({
+        sgMail.send({
           to: email,
           from: 'reset@tip-manager.herokuapp.com.com',
           subject: 'Password Reset',
@@ -273,6 +323,10 @@ exports.resetPassword = (req, res, next) => {
             <p>The Tip Manager Team</p>
           `
         })
+          .then(() => console.log('Email sent'))
+          .catch(err => errorHandler(err, next));
+
+        res.status(200).json({ message: 'Password reset email sent' });
       })
       .catch(err => errorHandler(err, next));
   })

@@ -30,7 +30,6 @@ export default class UploadPage extends Component {
 
     const formData = new FormData();
     formData.append('csv', file);
-    console.log(this.fileInput.current.files[0]);
     axios.post('/tips/upload', formData, { 
       headers: {
         Authorization: 'Bearer ' + this.state.token
@@ -93,7 +92,7 @@ export default class UploadPage extends Component {
 
         <p>Make sure you format your in ther order of: </p>
         <p>Date | Position | Type of Shift | Amount | Length of Shift (hrs)</p> 
-        <p>Exactly as shown below. Also ensure that the date is mm/dd/yyyy.</p>
+        <p>Exactly as shown below. Also ensure that the date is mm/dd/yyyy and do not include any headers, just the raw data.</p>
 
         <table className="table table-bordered">
           <tbody>
