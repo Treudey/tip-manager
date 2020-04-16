@@ -101,7 +101,7 @@ export default class PasswordReset extends Component {
               type="submit" 
               disabled={this.props.loading} 
               value={this.props.loading ? 'Loading...' : 'Update Password'} 
-              className="btn btn-primary" 
+              className="btn btn-success" 
             />
           </div>
         </form>

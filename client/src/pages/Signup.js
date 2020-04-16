@@ -85,7 +85,7 @@ export default class Signup extends Component {
     const signupData = this.state.signupData;
     const errors = this.state.formErrors;
     return (
-      <div>
+      <div className="container-fluid">
         <h3>Sign Up</h3>
         <form onSubmit={this.handleSubmit}>
           <div className="form-group">
@@ -141,7 +141,7 @@ export default class Signup extends Component {
               type="submit" 
               disabled={this.props.loading}
               value={this.props.loading ? 'Loading...' : 'Register'} 
-              className="btn btn-primary" 
+              className="btn btn-success" 
             />
           </div>
         </form>

@@ -406,7 +406,7 @@ export default class TipForm extends Component {
               type="submit" 
               disabled={this.state.formLoading}
               value={this.state.formLoading ? 'Loading...' : (this.props.editing ? 'Update Tip' : 'Add Tip')} 
-              className="btn btn-primary" 
+              className="btn btn-success" 
             />
           </div>
         </form>

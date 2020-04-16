@@ -317,124 +317,132 @@ export default class AccountDetails extends Component {
             <span className='error text-danger'>{errors.passwordForDeleteAccount}</span>}
         </Modal>
         <Row>
-          <h1>Account Details</h1>
+          <Col>
+            <h1>Account Details</h1>
+          </Col>
         </Row>
         {this.state.dataLoading ? (
-          <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-            <Loader />
-          </div>
+          <Row>
+            <Col>
+              <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+                <Loader />
+              </div>
+            </Col>
+          </Row>
         ) : (
           <Fragment>
           <Row>
-            <Form style={{width: "100%"}} onSubmit={this.onSubmitForm}>
-              <Form.Group as={Row}>
-                <Form.Label column sm={2}>Name: </Form.Label>
-                <Col sm={10}>
-                  <Form.Control 
-                    type="text"
-                    id="name"
-                    value={this.state.formData.name}
-                    onChange={this.onChangeInput}
-                  />
-                  {errors.name.length > 0 && 
-                    <span className='error text-danger'>{errors.name}</span>}
-                </Col>
-              </Form.Group>
-              <div className="form-group row">
-                <label className="col-sm-2 col-form-label">Email: </label>
-                <div className="col-sm-10">
-                  <input 
-                    type="email" 
-                    className="form-control"
-                    id="email"
-                    value={this.state.formData.email}
-                    onChange={this.onChangeInput}
-                  />
-                  {errors.email.length > 0 && 
-                    <span className='error text-danger'>{errors.email}</span>}
-                </div>
-              </div>
-              
-              {!this.state.passwordFormEnabled ? (
-                <div className="form-group row"> 
-                  <label className="col-sm-2 col-form-label">Password: </label>
-                  <div className="col-sm-10">
-                    <input  
-                      type="password"
-                      className="form-control"
-                      id="password"
-                      defaultValue
-                      onFocus={this.enablePasswordForm}
+            <Col>
+              <Form style={{width: "100%"}} onSubmit={this.onSubmitForm}>
+                <Form.Group as={Row}>
+                  <Form.Label column sm={2}>Name: </Form.Label>
+                  <Col sm={10}>
+                    <Form.Control 
+                      type="text"
+                      id="name"
+                      value={this.state.formData.name}
+                      onChange={this.onChangeInput}
                     />
+                    {errors.name.length > 0 && 
+                      <span className='error text-danger'>{errors.name}</span>}
+                  </Col>
+                </Form.Group>
+                <div className="form-group row">
+                  <label className="col-sm-2 col-form-label">Email: </label>
+                  <div className="col-sm-10">
+                    <input 
+                      type="email" 
+                      className="form-control"
+                      id="email"
+                      value={this.state.formData.email}
+                      onChange={this.onChangeInput}
+                    />
+                    {errors.email.length > 0 && 
+                      <span className='error text-danger'>{errors.email}</span>}
                   </div>
                 </div>
-              ) : (
-                <Fragment>
-                  <div className="form-group row">
-                    <label className="col-sm-2 col-form-label">Old Password: </label>
-                    <div className="col-sm-9">
-                      <input 
-                        type="password" 
-                        className="form-control"
-                        id="oldPassword"
-                        value={this.state.formData.oldPassword}
-                        onChange={this.onChangeInput}
-                        autoFocus
-                      />
-                      {errors.oldPassword.length > 0 && 
-                        <span className='error text-danger'>{errors.oldPassword}</span>}
-                    </div>
-                    <div className="col-sm-1">
-                      <button className="btn btn-danger" onClick={this.disablePasswordForm}>
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
-                  <div className="form-group row">
-                    <label className="col-sm-2 col-form-label">New Password: </label>
+                
+                {!this.state.passwordFormEnabled ? (
+                  <div className="form-group row"> 
+                    <label className="col-sm-2 col-form-label">Password: </label>
                     <div className="col-sm-10">
-                      <input 
-                        type="password" 
+                      <input  
+                        type="password"
                         className="form-control"
-                        id="newPassword"
-                        value={this.state.formData.newPassword}
-                        onChange={this.onChangeInput}
+                        id="password"
+                        defaultValue
+                        onFocus={this.enablePasswordForm}
                       />
-                      {errors.newPassword.length > 0 && 
-                        <span className='error text-danger'>{errors.newPassword}</span>}
                     </div>
                   </div>
-                  <div className="form-group row">
-                    <label className="col-sm-2 col-form-label">Confirm Password: </label>
-                    <div className="col-sm-10">
-                      <input 
-                        type="password" 
-                        className="form-control"
-                        id="confirmPassword"
-                        value={this.state.formData.confirmPassword}
-                        onChange={this.onChangeInput}
-                      />
-                      {errors.confirmPassword.length > 0 && 
-                        <span className='error text-danger'>{errors.confirmPassword}</span>}
+                ) : (
+                  <Fragment>
+                    <div className="form-group row">
+                      <label className="col-sm-2 col-form-label">Old Password: </label>
+                      <div className="col-sm-9">
+                        <input 
+                          type="password" 
+                          className="form-control"
+                          id="oldPassword"
+                          value={this.state.formData.oldPassword}
+                          onChange={this.onChangeInput}
+                          autoFocus
+                        />
+                        {errors.oldPassword.length > 0 && 
+                          <span className='error text-danger'>{errors.oldPassword}</span>}
+                      </div>
+                      <div className="col-sm-1">
+                        <button className="btn btn-danger" onClick={this.disablePasswordForm}>
+                          Cancel
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                </Fragment>
-              )}
-              
-              <Form.Group as={Row}>
-                <Col sm={{ span: 10, offset: 2 }}>
-                  <Button 
-                    type="submit" 
-                    disabled={this.state.formLoading || this.state.disableSubmit}
-                    className="btn btn-primary" 
-                  >
-                    {this.state.formLoading ? 'Loading...' : 'Save Changes'}
-                  </Button>
-                </Col>
-              </Form.Group>
-            </Form>
-            {this.state.userUpdated && 
-              <span className="text-success" >User Info Updated!</span>}
+                    <div className="form-group row">
+                      <label className="col-sm-2 col-form-label">New Password: </label>
+                      <div className="col-sm-10">
+                        <input 
+                          type="password" 
+                          className="form-control"
+                          id="newPassword"
+                          value={this.state.formData.newPassword}
+                          onChange={this.onChangeInput}
+                        />
+                        {errors.newPassword.length > 0 && 
+                          <span className='error text-danger'>{errors.newPassword}</span>}
+                      </div>
+                    </div>
+                    <div className="form-group row">
+                      <label className="col-sm-2 col-form-label">Confirm Password: </label>
+                      <div className="col-sm-10">
+                        <input 
+                          type="password" 
+                          className="form-control"
+                          id="confirmPassword"
+                          value={this.state.formData.confirmPassword}
+                          onChange={this.onChangeInput}
+                        />
+                        {errors.confirmPassword.length > 0 && 
+                          <span className='error text-danger'>{errors.confirmPassword}</span>}
+                      </div>
+                    </div>
+                  </Fragment>
+                )}
+                
+                <Form.Group as={Row}>
+                  <Col sm={{ span: 10, offset: 2 }}>
+                    <Button 
+                      type="submit" 
+                      disabled={this.state.formLoading || this.state.disableSubmit}
+                      className="btn btn-success" 
+                    >
+                      {this.state.formLoading ? 'Loading...' : 'Save Changes'}
+                    </Button>
+                  </Col>
+                </Form.Group>
+              </Form>
+              {this.state.userUpdated && 
+                <span className="text-success" >User Info Updated!</span>}
+            </Col>
           </Row>
           <Row>
             <div className="delete-account">

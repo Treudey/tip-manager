@@ -67,7 +67,7 @@ mongoose.connect(uri, {
   useFindAndModify: false
 })
 .then(result => {
-  console.log('MongoDB database connection established successfully')
+  console.log('MongoDB database connection established successfully');
   app.listen(port, () => console.log(`Server running on port ${port}`));
 })
 .catch(err => console.log(err));

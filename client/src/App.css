@@ -1,0 +1,24 @@
+a {
+  color: #28a745;
+}
+
+a:hover {
+  color: #208738;
+}
+
+form {
+  margin-top: 1rem;
+}
+
+.navbar {
+  margin-bottom: 1.5rem;
+}
+
+.jumbotron {
+  background-color: #e8faec;
+  margin-top: -1.5rem;
+}
+
+.table .thead-light > tr > th {
+  background-color: #e8faec;
+}

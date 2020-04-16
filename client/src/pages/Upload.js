@@ -121,7 +121,7 @@ export default class UploadPage extends Component {
               type="submit" 
               disabled={this.state.formLoading}
               value={this.state.formLoading ? 'Loading...' : 'Upload File'} 
-              className="btn btn-primary" 
+              className="btn btn-success" 
             />
           </div>
         </form>

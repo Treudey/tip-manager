@@ -430,7 +430,9 @@ export default class ChartsPage extends Component {
       <div className="container-fluid">
         <ErrorModal error={this.state.error} onHandle={this.errorHandler} />
         <Row>
-          <h1>Chart Page</h1>
+          <Col>
+            <h1>Chart Page</h1>
+          </Col>
         </Row>
         {this.state.chartsLoading ? (
           <div style={{ textAlign: 'center', marginTop: '2rem' }}>

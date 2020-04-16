@@ -88,7 +88,7 @@ export default class Login extends Component {
     const loginData = this.state.loginData;
     const errors = this.state.formErrors;
     return (
-      <div>
+      <div className="container-fluid">
         <h3>Login</h3>
         {!this.state.resetPasswordEnabled ? (
           <Fragment>
@@ -122,7 +122,7 @@ export default class Login extends Component {
                   type="submit" 
                   disabled={this.props.loading} 
                   value={this.props.loading ? 'Loading...' : 'Log In'} 
-                  className="btn btn-primary" 
+                  className="btn btn-success" 
                 />
               </div>
             </form>
@@ -156,9 +156,9 @@ export default class Login extends Component {
               </div>
               <div className="form-group">
                 <Button
-                  type="submit" 
+                  type="submit"
                   disabled={this.props.loading}
-                  className="btn-primary" 
+                  variant="success"
                 >
                   {this.props.loading ? 'Loading...' : 'Reset Password'}
                 </Button>

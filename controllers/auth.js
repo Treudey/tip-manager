@@ -76,7 +76,7 @@ exports.signup = (req, res, next) => {
         if (err) reject(err);
         resolve(buffer.toString('hex'));
       });
-    })
+    });
   };
   let verifyToken;
   User.findOne({ email })

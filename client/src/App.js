@@ -21,6 +21,8 @@ import NetworkDetector from './hoc/NetworkDetector';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Container } from 'react-bootstrap';
 
+import './App.css';
+
 class App extends Component {
 
   state = {

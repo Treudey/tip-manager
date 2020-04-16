@@ -1,7 +1,9 @@
 import React from 'react';
 import { Navbar, Nav, NavDropdown } from 'react-bootstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faUserCircle } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUserCircle } from '@fortawesome/free-solid-svg-icons';
+
+import './Navigation.css';
 
 const Navigation = (props) => {
 
@@ -29,7 +31,7 @@ const Navigation = (props) => {
   }
 
   return (
-    <Navbar bg="dark" variant="dark" expand="lg">
+    <Navbar variant="dark" bg="success" expand="lg">
       <Navbar.Brand href="/">Tip Manager</Navbar.Brand>
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
 
