@@ -118,7 +118,7 @@ export default class Dashboard extends Component {
         const element = object[key];
         if (key === 'totals' && object.tipsArr.length) {
           element.hourly = '$' + this.getHourly(element, object.tipsArr.length);
-          element.total = '$' + element.total;
+          element.total = '$' + element.total.toFixed(2);
         } else if (typeof element === 'object') {
           this.generateTipTotals(element);
         } 
@@ -128,6 +128,7 @@ export default class Dashboard extends Component {
 
   getHourly = (totalsObj, tipsCount) => {
     let hourly = totalsObj.total / totalsObj.hours;
+    totalsObj.hours = totalsObj.hours.toFixed(1);
     hourly = +hourly.toFixed(2);
 
     return hourly;
