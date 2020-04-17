@@ -119,7 +119,7 @@ export default class TipList extends Component {
     } else {
       loadedHtml = (
         <Fragment>
-          <a href="# " onClick={this.downloadCSV}>Download Your Tips as a CSV File</a>
+          <a className="padded" href="# " onClick={this.downloadCSV}>Download Your Tips as a CSV File</a>
           <Table 
             headers={['Date', 'Position', 'Type of Shift', 'Amount', 'Shift Length', 'Actions']} 
             delete={this.handleDeleteButton} 
@@ -130,14 +130,14 @@ export default class TipList extends Component {
     }
 
     return (
-      <div className="container-fluid">
+      <div className="container">
         <ErrorModal error={this.state.error} onHandle={this.errorHandler} />
         <ConfirmModal 
           isEnabled={this.state.enableConfirmModal} 
           onConfirm={() => this.deleteTip(this.state.tipToBeDeleted)} 
           onCancel={this.cancelConfirmModal} 
         />
-        <h1>Your Tips</h1>
+        <h1 className="padded">Your Tips</h1>
         {this.state.tipsLoading ? (
           <div style={{ textAlign: 'center', marginTop: '2rem' }}>
             <Loader />

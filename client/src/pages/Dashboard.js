@@ -146,7 +146,7 @@ export default class Dashboard extends Component {
       const headers = ['Tips', 'Hours', '$/Hour'];
       loadedHtml = (
         <div className="row">
-          <h3>Tip Data By</h3>
+          <h3 className="padded">Tip Data By</h3>
           <Table headers={['Position', ...headers]} rowData={this.state.tipDataByPosition} />
           <Table headers={['Type of Shift', ...headers]} rowData={this.state.tipDataByShiftType} />
           <Table headers={['Month', ...headers]} rowData={this.state.tipDataByMonth} />

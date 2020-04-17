@@ -218,7 +218,7 @@ export default class ChartsPage extends Component {
       loadedHtml = (
         <Fragment>
           <Row>
-            <Col>
+            <Col sm={1} md= "auto" >
               <Chart
                 width={'100%'}
                 height={'500px'}
@@ -238,7 +238,7 @@ export default class ChartsPage extends Component {
                 }}
               />
             </Col>
-            <Col>
+            <Col sm={1} md= "auto" >
               <Chart
                 width={'100%'}
                 height={'500px'}
@@ -260,7 +260,7 @@ export default class ChartsPage extends Component {
             </Col>
           </Row>
           <Row>
-            <Col>
+            <Col sm={1} md= "auto" >
               <Chart
                 width={'100%'}
                 height={'500px'}
@@ -280,7 +280,7 @@ export default class ChartsPage extends Component {
                 }}
               />
             </Col>
-            <Col>
+            <Col sm={1} md= "auto" >
               <Chart
                 width={'100%'}
                 height={'500px'}
@@ -305,7 +305,7 @@ export default class ChartsPage extends Component {
             {this.state.positions.length > 1 && 
               this.state.positions.map(position => {
                 return (
-                  <Col key={position + 'AverageTips'}>
+                  <Col key={position + 'AverageTips'} sm={1}>
                     <Chart
                       width={'100%'}
                       height={'500px'}
@@ -331,7 +331,7 @@ export default class ChartsPage extends Component {
           </Row>
           <Row>
             {this.state.positions.length > 1 && 
-              <Col>
+              <Col sm={1} md= "auto" >
                 <Chart
                   width={'100%'}
                   height={'500px'}
@@ -345,7 +345,7 @@ export default class ChartsPage extends Component {
                 />
               </Col>  
             }
-            <Col>
+            <Col sm={1} md= "auto" >
               <Chart
                 width={'100%'}
                 height={'500px'}
@@ -360,7 +360,7 @@ export default class ChartsPage extends Component {
             </Col>
           </Row>
           <Row>
-            <Col>
+            <Col sm={1} md= "auto" >
               <Chart
                 width={'100%'}
                 height={'500px'}
@@ -375,7 +375,7 @@ export default class ChartsPage extends Component {
             </Col>
           </Row>
           <Row>
-            <Col>
+            <Col sm={1} md= "auto" >
               <Chart
                 width={'100%'}
                 height={'500px'}
@@ -399,7 +399,7 @@ export default class ChartsPage extends Component {
               this.state.positions.map(position => {
                 return (
                   <Row key={position + 'TipsOverTime'}>
-                  <Col>
+                  <Col sm={1} md= "auto" >
                     <Chart
                       width={'100%'}
                       height={'500px'}

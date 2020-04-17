@@ -348,7 +348,7 @@ export default class AccountDetails extends Component {
                   </Col>
                 </Form.Group>
                 <div className="form-group row">
-                  <label className="col-sm-2 col-form-label">Email: </label>
+                  <label className="col-sm-2 col-form-label">Email:</label>
                   <div className="col-sm-10">
                     <input 
                       type="email" 
@@ -364,7 +364,7 @@ export default class AccountDetails extends Component {
                 
                 {!this.state.passwordFormEnabled ? (
                   <div className="form-group row"> 
-                    <label className="col-sm-2 col-form-label">Password: </label>
+                    <label className="col-sm-2 col-form-label">Password:</label>
                     <div className="col-sm-10">
                       <input  
                         type="password"
@@ -378,9 +378,9 @@ export default class AccountDetails extends Component {
                 ) : (
                   <Fragment>
                     <div className="form-group row">
-                      <label className="col-sm-2 col-form-label">Old Password: </label>
-                      <div className="col-sm-9">
-                        <input 
+                      <label className="col-sm-2 col-form-label">Old Password:</label>
+                      <div className="col-9 col-sm-8 col-xl-9">
+                        <input
                           type="password" 
                           className="form-control"
                           id="oldPassword"
@@ -391,14 +391,14 @@ export default class AccountDetails extends Component {
                         {errors.oldPassword.length > 0 && 
                           <span className='error text-danger'>{errors.oldPassword}</span>}
                       </div>
-                      <div className="col-sm-1">
+                      <div className="col-2 col-xl-1 cancel-btn-col">
                         <button className="btn btn-danger" onClick={this.disablePasswordForm}>
                           Cancel
                         </button>
                       </div>
                     </div>
                     <div className="form-group row">
-                      <label className="col-sm-2 col-form-label">New Password: </label>
+                      <label className="col-sm-2 col-form-label">New Password:</label>
                       <div className="col-sm-10">
                         <input 
                           type="password" 
@@ -412,7 +412,7 @@ export default class AccountDetails extends Component {
                       </div>
                     </div>
                     <div className="form-group row">
-                      <label className="col-sm-2 col-form-label">Confirm Password: </label>
+                      <label className="col-sm-2 col-form-label">Confirm Password:</label>
                       <div className="col-sm-10">
                         <input 
                           type="password" 

@@ -22,3 +22,49 @@ form {
 .table .thead-light > tr > th {
   background-color: #e8faec;
 }
+
+.cancel-btn-col {
+  padding: 0;
+  margin: 0;
+  text-align: right;
+}
+
+.cancel-btn-col .btn {
+  margin-right: 15px;
+}
+
+@media only screen and (max-width: 992px) {
+  .main-container {
+    min-width: 810px;
+  }
+}
+
+@media only screen and (max-width: 810px) {
+  .main-container {
+    min-width: 690px;
+  }
+}
+
+@media only screen and (max-width: 690px) {
+  .main-container {
+    min-width: 578px;
+  }
+}
+
+@media only screen and (max-width: 578px) {
+  .main-container {
+    min-width: initial;
+    padding: 0;
+  }
+}
+
+@media only screen and (max-width: 442px) {
+  .jumbotron .display-2 {
+    font-size: 3rem;
+  }
+
+  .padded {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}

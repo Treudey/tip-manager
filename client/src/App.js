@@ -370,7 +370,7 @@ class App extends Component {
     }
 
     return (
-      <Container>
+      <Container className="main-container">
         <ErrorModal error={this.state.error} onHandle={this.errorHandler} />
         <Modal 
           title="Success!"
@@ -380,7 +380,7 @@ class App extends Component {
           handleAccept={this.handleSuccessModalClose}
         >
           <p>{this.state.successMessage}</p>
-       </Modal>
+        </Modal>
         <Navigation onLogout={this.logoutHandler} isLoggedIn={this.state.isLoggedIn} />
         {routes}
       </Container>

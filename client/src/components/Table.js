@@ -39,18 +39,20 @@ const Table = props => {
   }
 
   return (
-    <table className="table">
-      <thead className="thead-light">
-        <tr>
-        {props.headers.map(e => {
-          return <th key={e}>{e}</th>;
-        })}
-        </tr>
-      </thead>
-      <tbody>
-        {rowList}
-      </tbody>
-    </table>
+    <div className="table-responsive">
+      <table className="table">
+        <thead className="thead-light">
+          <tr>
+          {props.headers.map(e => {
+            return <th key={e}>{e}</th>;
+          })}
+          </tr>
+        </thead>
+        <tbody>
+          {rowList}
+        </tbody>
+      </table>
+    </div>
   );
   
 };

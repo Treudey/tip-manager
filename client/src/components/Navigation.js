@@ -31,7 +31,7 @@ const Navigation = (props) => {
   }
 
   return (
-    <Navbar variant="dark" bg="success" expand="lg">
+    <Navbar variant="dark" bg="success" expand="sm">
       <Navbar.Brand href="/">Tip Manager</Navbar.Brand>
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
 
