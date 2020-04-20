@@ -218,30 +218,30 @@ export default class ChartsPage extends Component {
       loadedHtml = (
         <Fragment>
           <Row>
-            <Col sm={1} md= "auto" >
-              <Chart
-                width={'100%'}
-                height={'500px'}
-                chartType="ColumnChart"
-                loader={<div>Loading Chart</div>}
-                data={this.getFormattedArrBar(days, this.state.tipDataByPosition, 'hourly', 'Position')}
-                options={{
-                  title: 'Hourly Tips by Weekday',
-                  chartArea: { width: '50%' },
-                  vAxis: {
-                    title: '$/Hour',
-                    minValue: 0,
-                  },
-                  hAxis: {
-                    title: 'Weekday',
-                  },
-                }}
-              />
+            <Col xs={12} md={6}>
+                <Chart
+                  width={'100%'}
+                  height={'60vh'}
+                  chartType="ColumnChart"
+                  loader={<div>Loading Chart</div>}
+                  data={this.getFormattedArrBar(days, this.state.tipDataByPosition, 'hourly', 'Position')}
+                  options={{
+                    title: 'Hourly Tips by Weekday',
+                    chartArea: { width: '50%' },
+                    vAxis: {
+                      title: '$/Hour',
+                      minValue: 0,
+                    },
+                    hAxis: {
+                      title: 'Weekday',
+                    },
+                  }}
+                />
             </Col>
-            <Col sm={1} md= "auto" >
+            <Col xs={12} md={6}>
               <Chart
                 width={'100%'}
-                height={'500px'}
+                height={'60vh'}
                 chartType="ColumnChart"
                 loader={<div>Loading Chart</div>}
                 data={this.getFormattedArrBar(months, this.state.tipDataByPosition, 'hourly', 'Position')}
@@ -260,10 +260,10 @@ export default class ChartsPage extends Component {
             </Col>
           </Row>
           <Row>
-            <Col sm={1} md= "auto" >
+            <Col xs={12} md={6}>
               <Chart
                 width={'100%'}
-                height={'500px'}
+                height={'60vh'}
                 chartType="ColumnChart"
                 loader={<div>Loading Chart</div>}
                 data={this.getFormattedArrBar(this.state.shiftTypes, this.state.tipDataByPosition, 'average', 'Position')}
@@ -280,10 +280,10 @@ export default class ChartsPage extends Component {
                 }}
               />
             </Col>
-            <Col sm={1} md= "auto" >
+            <Col xs={12} md={6}>
               <Chart
                 width={'100%'}
-                height={'500px'}
+                height={'60vh'}
                 chartType="ColumnChart"
                 loader={<div>Loading Chart</div>}
                 data={this.getFormattedArrBar(days, this.state.tipDataByDay, 'average', 'ShiftType')}
@@ -305,10 +305,10 @@ export default class ChartsPage extends Component {
             {this.state.positions.length > 1 && 
               this.state.positions.map(position => {
                 return (
-                  <Col key={position + 'AverageTips'} sm={1}>
+                  <Col xs={12} md={6} key={position + 'AverageTips'}>
                     <Chart
                       width={'100%'}
-                      height={'500px'}
+                      height={'60vh'}
                       chartType="ColumnChart"
                       loader={<div>Loading Chart</div>}
                       data={this.getFormattedArrBar(days, this.state.tipDataByPosition[position], 'average', 'ShiftType')}
@@ -331,10 +331,10 @@ export default class ChartsPage extends Component {
           </Row>
           <Row>
             {this.state.positions.length > 1 && 
-              <Col sm={1} md= "auto" >
+              <Col xs={12} md={6} >
                 <Chart
                   width={'100%'}
-                  height={'500px'}
+                  height={'50vh'}
                   chartType="PieChart"
                   loader={<div>Loading Chart</div>}
                   data={this.getFormattedArrPie(this.state.positions, this.state.tipDataByPosition, 'Position')}
@@ -345,10 +345,10 @@ export default class ChartsPage extends Component {
                 />
               </Col>  
             }
-            <Col sm={1} md= "auto" >
+            <Col xs={12} md={6}>
               <Chart
                 width={'100%'}
-                height={'500px'}
+                height={'50vh'}
                 chartType="PieChart"
                 loader={<div>Loading Chart</div>}
                 data={this.getFormattedArrPie(months, this.state.tipDataByMonth, 'Month')}
@@ -360,10 +360,10 @@ export default class ChartsPage extends Component {
             </Col>
           </Row>
           <Row>
-            <Col sm={1} md= "auto" >
+            <Col>
               <Chart
                 width={'100%'}
-                height={'500px'}
+                height={'400px'}
                 chartType="PieChart"
                 loader={<div>Loading Chart</div>}
                 data={this.getFormattedArrPie(days, this.state.tipDataByDay, 'Day')}
@@ -375,7 +375,7 @@ export default class ChartsPage extends Component {
             </Col>
           </Row>
           <Row>
-            <Col sm={1} md= "auto" >
+            <Col>
               <Chart
                 width={'100%'}
                 height={'500px'}
@@ -399,7 +399,7 @@ export default class ChartsPage extends Component {
               this.state.positions.map(position => {
                 return (
                   <Row key={position + 'TipsOverTime'}>
-                  <Col sm={1} md= "auto" >
+                  <Col>
                     <Chart
                       width={'100%'}
                       height={'500px'}

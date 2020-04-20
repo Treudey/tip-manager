@@ -19,6 +19,12 @@ form {
   margin-top: -1.5rem;
 }
 
+.chart {
+  width: 100%;
+  height: 500px;
+  margin: 0;
+}
+
 .table .thead-light > tr > th {
   background-color: #e8faec;
 }
@@ -66,5 +72,9 @@ form {
   .padded {
     padding-left: 12px;
     padding-right: 12px;
+  }
+
+  .chart {
+    max-height: 200px;
   }
 }
