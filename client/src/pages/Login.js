@@ -166,6 +166,9 @@ export default class Login extends Component {
             </form>
           </Fragment>
         )}
+        <p>Want to test out the application?</p>
+        <p>Use email: alex@test.com</p>
+        <p>password: secure</p>
       </div>
     );
   }
