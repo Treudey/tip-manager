@@ -117,21 +117,14 @@ export default class Dashboard extends Component {
       if (object.hasOwnProperty(key)) {
         const element = object[key];
         if (key === 'totals' && object.tipsArr.length) {
-          element.hourly = '$' + this.getHourly(element, object.tipsArr.length);
+          element.hourly = '$' + (element.total / element.hours).toFixed(2);
           element.total = '$' + element.total.toFixed(2);
+          element.hours = element.hours.toFixed(1);
         } else if (typeof element === 'object') {
           this.generateTipTotals(element);
         } 
       }
     }
-  };
-
-  getHourly = (totalsObj, tipsCount) => {
-    let hourly = totalsObj.total / totalsObj.hours;
-    totalsObj.hours = totalsObj.hours.toFixed(1);
-    hourly = +hourly.toFixed(2);
-
-    return hourly;
   };
 
   errorHandler = () => {
