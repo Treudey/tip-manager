@@ -59,7 +59,7 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-const uri = process.env.MONGODB_URI || process.env.ATLAS_URI;
+const uri = process.env.MONGODB_URI;
 mongoose.connect(uri, { 
   useNewUrlParser: true, 
   useCreateIndex: true, 
