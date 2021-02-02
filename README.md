@@ -19,7 +19,6 @@ Password: secure
 * React Google Charts
 * axios
 * Heroku
-* mLab
 * REST APIs
 * SendGrid
 * JSON Web Tokens
